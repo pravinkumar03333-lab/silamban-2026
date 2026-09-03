@@ -1,0 +1,1642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Meesaikarar Silamba Koodam</title>
+
+    <!-- Traditional Tamil Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Serif+Tamil:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600&display=swap"
+        rel="stylesheet"
+    >
+    <!-- FontAwesome for Social Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: #050201;
+            color: white;
+            font-family: Arial, Helvetica, sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* =========================
+            NAVBAR
+        ========================= */
+
+        .navbar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 78px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 0 4%;
+
+            z-index: 100;
+
+            background: rgba(15, 4, 1, 0.92);
+
+            border-bottom: 1px solid rgba(255, 174, 0, 0.35);
+
+            backdrop-filter: blur(5px);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+            color: #ffb000;
+
+            font-size: 29px;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .logo-icon {
+            font-size: 27px;
+
+            animation: logoGlow 2s infinite alternate;
+        }
+
+        @keyframes logoGlow {
+            from {
+                filter: drop-shadow(0 0 2px #ffb000);
+            }
+
+            to {
+                filter: drop-shadow(0 0 12px #ffb000);
+            }
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 35px;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+
+            font-size: 16px;
+            font-weight: 600;
+
+            transition: 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #ffb000;
+        }
+
+        .login-nav {
+            border: 1px solid #ffb000;
+            border-radius: 30px;
+
+            padding: 12px 23px;
+
+            color: #ffb000 !important;
+        }
+
+        .login-nav:hover {
+            background: #ffb000;
+            color: #111 !important;
+        }
+
+        /* =========================
+            HERO
+        ========================= */
+
+        .hero {
+            position: relative;
+
+            min-height: 100vh;
+
+            display: flex;
+            align-items: center;
+
+            overflow: hidden;
+
+            isolation: isolate;
+
+            background: #120501;
+        }
+
+        /* YOUR ACTUAL IMAGE */
+
+        .hero-background {
+            position: absolute;
+
+            inset: -5%;
+
+            z-index: -5;
+
+            background-image:
+                linear-gradient(
+                    90deg,
+                    rgba(0, 0, 0, 0.94) 0%,
+                    rgba(0, 0, 0, 0.70) 35%,
+                    rgba(0, 0, 0, 0.18) 72%,
+                    rgba(0, 0, 0, 0.38) 100%
+                ),
+                url("{{ url_for('static', filename='silambam-hero.png') }}");
+
+            background-size: cover;
+
+            background-position: center;
+
+            background-repeat: no-repeat;
+
+            animation:
+                cinematicZoom 18s ease-in-out infinite alternate,
+                backgroundMove 14s ease-in-out infinite alternate;
+        }
+
+        @keyframes cinematicZoom {
+
+            0% {
+                transform: scale(1);
+            }
+
+            100% {
+                transform: scale(1.09);
+            }
+        }
+
+        @keyframes backgroundMove {
+
+            0% {
+                background-position: center center;
+            }
+
+            50% {
+                background-position: 53% 48%;
+            }
+
+            100% {
+                background-position: 47% 52%;
+            }
+        }
+
+        /* =========================
+            SUN GLOW
+        ========================= */
+
+        .sun-glow {
+            position: absolute;
+
+            width: 280px;
+            height: 280px;
+
+            border-radius: 50%;
+
+            right: 15%;
+            top: 27%;
+
+            background: rgba(255, 175, 20, 0.12);
+
+            filter: blur(45px);
+
+            z-index: -3;
+
+            animation: sunPulse 4s ease-in-out infinite alternate;
+        }
+
+        @keyframes sunPulse {
+
+            from {
+                transform: scale(0.9);
+                opacity: 0.45;
+            }
+
+            to {
+                transform: scale(1.15);
+                opacity: 0.85;
+            }
+        }
+
+        /* =========================
+            DARK BOTTOM
+        ========================= */
+
+        .bottom-shadow {
+            position: absolute;
+
+            left: 0;
+            bottom: 0;
+
+            width: 100%;
+            height: 42%;
+
+            z-index: -2;
+
+            background:
+                linear-gradient(
+                    transparent,
+                    rgba(0, 0, 0, 0.98)
+                );
+        }
+
+        /* =========================
+            FLOATING GOLD PARTICLES
+        ========================= */
+
+        .particles {
+            position: absolute;
+
+            inset: 0;
+
+            z-index: 2;
+
+            pointer-events: none;
+
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+
+            bottom: -20px;
+
+            width: 4px;
+            height: 4px;
+
+            border-radius: 50%;
+
+            background: #ffb000;
+
+            box-shadow:
+                0 0 8px #ffb000,
+                0 0 16px rgba(255, 174, 0, 0.8);
+
+            opacity: 0;
+
+            animation: ember 7s linear infinite;
+        }
+
+        .particle:nth-child(1) {
+            left: 10%;
+            animation-delay: 1s;
+        }
+
+        .particle:nth-child(2) {
+            left: 20%;
+            animation-delay: 3s;
+        }
+
+        .particle:nth-child(3) {
+            left: 30%;
+            animation-delay: 0s;
+        }
+
+        .particle:nth-child(4) {
+            left: 40%;
+            animation-delay: 2s;
+        }
+
+        .particle:nth-child(5) {
+            left: 50%;
+            animation-delay: 4s;
+        }
+
+        .particle:nth-child(6) {
+            left: 60%;
+            animation-delay: 1s;
+        }
+
+        .particle:nth-child(7) {
+            left: 70%;
+            animation-delay: 5s;
+        }
+
+        .particle:nth-child(8) {
+            left: 80%;
+            animation-delay: 2s;
+        }
+
+        .particle:nth-child(9) {
+            left: 90%;
+            animation-delay: 4s;
+        }
+
+        @keyframes ember {
+
+            0% {
+                transform:
+                    translateY(0)
+                    translateX(0)
+                    scale(0.5);
+
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 0.9;
+            }
+
+            50% {
+                transform:
+                    translateY(-45vh)
+                    translateX(25px)
+                    scale(1);
+            }
+
+            80% {
+                opacity: 0.7;
+            }
+
+            100% {
+                transform:
+                    translateY(-100vh)
+                    translateX(-30px)
+                    scale(0.2);
+
+                opacity: 0;
+            }
+        }
+
+        /* =========================
+            HERO CONTENT
+        ========================= */
+
+        .hero-content {
+            position: relative;
+
+            z-index: 5;
+
+            width: 62%;
+
+            padding-left: 5%;
+            padding-top: 80px;
+
+            animation: contentAppear 1.5s ease-out;
+        }
+
+        @keyframes contentAppear {
+
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* =========================
+            TAGLINE
+        ========================= */
+
+        .tagline {
+            color: #ffb000;
+
+            font-size: 17px;
+
+            font-weight: 700;
+
+            letter-spacing: 5px;
+
+            margin-bottom: 25px;
+
+            animation:
+                taglineGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes taglineGlow {
+
+            from {
+                text-shadow:
+                    0 0 3px rgba(255, 174, 0, 0.2);
+            }
+
+            to {
+                text-shadow:
+                    0 0 14px rgba(255, 174, 0, 0.7);
+            }
+        }
+
+        /* =========================
+            DECORATION
+        ========================= */
+
+        .decorative-line {
+            display: flex;
+
+            align-items: center;
+
+            width: 540px;
+            max-width: 90%;
+
+            margin-bottom: 15px;
+        }
+
+        .decorative-line::before,
+        .decorative-line::after {
+            content: "";
+
+            height: 2px;
+
+            background: linear-gradient(
+                90deg,
+                transparent,
+                #ffb000
+            );
+
+            flex: 1;
+        }
+
+        .decorative-line::after {
+            background: linear-gradient(
+                90deg,
+                #ffb000,
+                transparent
+            );
+        }
+
+        .decorative-symbol {
+            color: #ffb000;
+
+            font-size: 22px;
+
+            padding: 0 14px;
+        }
+
+        /* =========================
+            MAIN TITLE
+        ========================= */
+
+        .hero h1 {
+            font-size: clamp(50px, 6vw, 88px);
+
+            line-height: 0.95;
+
+            font-weight: 900;
+
+            letter-spacing: 2px;
+
+            margin-bottom: 20px;
+
+            text-transform: uppercase;
+
+            text-shadow:
+                0 5px 20px rgba(0, 0, 0, 0.9);
+        }
+
+        .academy-name {
+            display: block;
+
+            color: #ffad00;
+
+            text-shadow:
+                0 3px 12px rgba(255, 165, 0, 0.25);
+        }
+
+        /* =========================
+            TAMIL SLOGAN
+        ========================= */
+
+        .tamil-slogan-box {
+            position: relative;
+
+            width: fit-content;
+
+            max-width: 95%;
+
+            margin: 24px 0 28px;
+
+            padding: 18px 48px;
+
+            border: 2px solid #d99a00;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    rgba(30, 10, 2, 0.95),
+                    rgba(10, 3, 1, 0.82),
+                    rgba(30, 10, 2, 0.95)
+                );
+
+            box-shadow:
+                0 0 18px rgba(255, 166, 0, 0.15),
+                inset 0 0 20px rgba(255, 166, 0, 0.07);
+
+            animation:
+                sloganGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes sloganGlow {
+
+            from {
+                box-shadow:
+                    0 0 10px rgba(255, 166, 0, 0.12),
+                    inset 0 0 15px rgba(255, 166, 0, 0.05);
+            }
+
+            to {
+                box-shadow:
+                    0 0 28px rgba(255, 166, 0, 0.28),
+                    inset 0 0 25px rgba(255, 166, 0, 0.10);
+            }
+        }
+
+        .tamil-slogan-box::before,
+        .tamil-slogan-box::after {
+            content: "◆";
+
+            position: absolute;
+
+            top: 50%;
+
+            transform: translateY(-50%);
+
+            color: #ffb000;
+
+            font-size: 13px;
+        }
+
+        .tamil-slogan-box::before {
+            left: 12px;
+        }
+
+        .tamil-slogan-box::after {
+            right: 12px;
+        }
+
+        .tamil-slogan {
+            font-family:
+                "Noto Serif Tamil",
+                "Nirmala UI",
+                "Latha",
+                serif;
+
+            color: #ffc23b;
+
+            font-size: clamp(22px, 2.5vw, 34px);
+
+            font-weight: 600;
+
+            line-height: 1.5;
+
+            letter-spacing: 1px;
+
+            text-align: center;
+
+            text-shadow:
+                0 2px 5px black,
+                0 0 12px rgba(255, 174, 0, 0.3);
+        }
+
+        /* =========================
+            DESCRIPTION
+        ========================= */
+
+        .description {
+            color: #eeeeee;
+
+            font-size: 18px;
+
+            line-height: 1.7;
+
+            max-width: 650px;
+
+            margin-bottom: 30px;
+
+            text-shadow:
+                0 2px 5px black;
+        }
+
+        /* =========================
+            BUTTONS
+        ========================= */
+
+        .buttons {
+            display: flex;
+
+            gap: 18px;
+
+            align-items: center;
+        }
+
+        .btn {
+            display: inline-block;
+
+            padding: 16px 30px;
+
+            border-radius: 35px;
+
+            text-decoration: none;
+
+            font-size: 16px;
+
+            font-weight: 700;
+
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #ffae00;
+
+            color: #111;
+
+            box-shadow:
+                0 8px 25px rgba(255, 174, 0, 0.25);
+        }
+
+        .btn-primary:hover {
+            background: #ffc23a;
+
+            transform:
+                translateY(-4px)
+                scale(1.02);
+
+            box-shadow:
+                0 12px 35px rgba(255, 174, 0, 0.45);
+        }
+
+        .btn-outline {
+            border: 2px solid white;
+
+            color: white;
+
+            background: rgba(0, 0, 0, 0.20);
+        }
+
+        .btn-outline:hover {
+            border-color: #ffb000;
+
+            color: #ffb000;
+
+            transform: translateY(-4px);
+        }
+
+        /* =========================
+            SCROLL DOWN
+        ========================= */
+
+        .scroll-down {
+            position: absolute;
+
+            bottom: 20px;
+
+            left: 50%;
+
+            transform: translateX(-50%);
+
+            z-index: 10;
+
+            color: #ffb000;
+
+            text-align: center;
+
+            font-size: 13px;
+
+            font-weight: 700;
+
+            letter-spacing: 5px;
+        }
+
+        .scroll-arrow {
+            margin-top: 8px;
+
+            font-size: 25px;
+
+            animation:
+                scrollBounce 1.5s infinite;
+        }
+
+        @keyframes scrollBounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(10px);
+            }
+        }
+
+        /* =========================
+            FEATURES
+        ========================= */
+
+        .features {
+            min-height: 500px;
+
+            padding: 90px 5%;
+
+            text-align: center;
+
+            background:
+                linear-gradient(
+                    #080301,
+                    #180803
+                );
+        }
+
+        .features h2 {
+            color: #ffb000;
+
+            font-size: 38px;
+
+            margin-bottom: 15px;
+        }
+
+        .features-intro {
+            color: #bbb;
+
+            margin-bottom: 50px;
+        }
+
+        .feature-grid {
+            max-width: 1100px;
+
+            margin: auto;
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(3, 1fr);
+
+            gap: 25px;
+        }
+
+        .feature-card {
+            padding: 35px 25px;
+
+            background:
+                rgba(255, 174, 0, 0.04);
+
+            border:
+                1px solid rgba(255, 174, 0, 0.25);
+
+            border-radius: 15px;
+
+            transition: 0.35s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+
+            border-color: #ffb000;
+
+            box-shadow:
+                0 12px 35px rgba(255, 174, 0, 0.12);
+        }
+
+        .feature-icon {
+            font-size: 42px;
+
+            margin-bottom: 18px;
+        }
+
+        .feature-card h3 {
+            color: #ffb000;
+
+            margin-bottom: 12px;
+        }
+
+        .feature-card p {
+            color: #bbb;
+
+            line-height: 1.6;
+        }
+
+        /* =========================
+            LOGIN MODAL OVERLAY STYLES
+        ========================= */
+
+        .login-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .login-modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .login-card-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .login-modal-overlay.active .login-card-wrapper {
+            transform: scale(1);
+        }
+
+        .close-modal-btn {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 22px;
+            cursor: pointer;
+            z-index: 10;
+            transition: color 0.2s;
+        }
+
+        .close-modal-btn:hover {
+            color: #ffb000;
+        }
+
+        /* =========================
+            GLASSMORPHISM LOGIN CARD
+        ========================= */
+
+        .login-card {
+            position: relative;
+            width: 100%;
+            padding: 40px;
+            background: rgba(15, 10, 26, 0.75);
+            border-radius: 25px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5),
+                        inset 0 0 80px rgba(125, 70, 255, 0.05);
+            overflow: hidden;
+            z-index: 1;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .login-card::before {
+            content: '';
+            position: absolute;
+            inset: -150px;
+            background: conic-gradient(from 0deg, 
+                rgba(255, 70, 120, 0.8), 
+                rgba(255, 150, 50, 0.45), 
+                rgba(168, 60, 255, 0.7), 
+                rgba(50, 100, 255, 0.8), 
+                rgba(255, 70, 120, 0.8));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            padding: 3px;
+            border-radius: 50%;
+            animation: borderSpin 6s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes borderSpin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .login-card h2 {
+            color: #fff;
+            text-align: center;
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.5);
+            text-align: center;
+            font-size: 13px;
+            margin-bottom: 30px;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .input-group {
+            position: relative;
+            width: 100%;
+            height: 53px;
+            margin-bottom: 15px;
+        }
+
+        .input-group i {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 14px;
+        }
+
+        .input-group input {
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.38);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            outline: none;
+            border-radius: 50px;
+            padding: 0 20px 0 48px;
+            color: #fff;
+            font-size: 14px;
+            transition: 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .input-group input:focus {
+            border-color: rgba(168, 60, 255, 0.6);
+            box-shadow: 0 0 15px rgba(168, 60, 255, 0.2);
+        }
+
+        .options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+            margin: 15px 0 25px 0;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .remember {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+
+        .remember input {
+            accent-color: #a83cff;
+            cursor: pointer;
+        }
+
+        .forgot {
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            transition: 0.2s;
+        }
+
+        .forgot:hover {
+            color: #fff;
+        }
+
+        .login-btn-card {
+            position: relative;
+            width: 100%;
+            height: 50px;
+            background: linear-gradient(135deg, #a83cff 0%, #ff4678 100%);
+            border: none;
+            border-radius: 50px;
+            color: #fff;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 10px 25px rgba(168, 60, 255, 0.4);
+            transition: 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .login-btn-card:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(168, 60, 255, 0.6);
+        }
+
+        .divider {
+            position: relative;
+            width: 100%;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.12);
+            margin: 30px 0 20px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .divider span {
+            background: #11091d;
+            padding: 0 12px;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 11px;
+        }
+
+        .social-login {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .social-btn {
+            width: 45px;
+            height: 45px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            text-decoration: none;
+            font-size: 16px;
+            transition: 0.3s ease;
+        }
+
+        .social-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: scale(1.08);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .signup-text {
+            text-align: center;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .signup-text a {
+            color: #ff4678;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .signup-text a:hover {
+            text-decoration: underline;
+        }
+
+        /* =========================
+            FOOTER
+        ========================= */
+
+        footer {
+            padding: 25px;
+
+            text-align: center;
+
+            background: #050201;
+
+            color: #888;
+
+            border-top:
+                1px solid rgba(255, 174, 0, 0.2);
+        }
+
+        .tamil-footer {
+            margin-top: 8px;
+
+            color: #ffb000;
+
+            font-family:
+                "Noto Serif Tamil",
+                "Nirmala UI",
+                serif;
+        }
+
+        /* =========================
+            TABLET
+        ========================= */
+
+        @media (max-width: 900px) {
+
+            .navbar {
+                height: auto;
+
+                padding: 18px 5%;
+
+                flex-wrap: wrap;
+
+                gap: 15px;
+            }
+
+            .logo {
+                font-size: 23px;
+            }
+
+            .nav-links {
+                width: 100%;
+
+                justify-content: flex-end;
+
+                gap: 15px;
+            }
+
+            .nav-links a {
+                font-size: 14px;
+            }
+
+            .hero {
+                min-height: 900px;
+
+                align-items: flex-start;
+
+                padding-top: 140px;
+            }
+
+            .hero-content {
+                width: 100%;
+
+                padding:
+                    30px 6%;
+
+                text-align: center;
+            }
+
+            .tagline {
+                font-size: 13px;
+
+                letter-spacing: 3px;
+            }
+
+            .decorative-line {
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .hero h1 {
+                font-size: 54px;
+            }
+
+            .tamil-slogan-box {
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .description {
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .buttons {
+                justify-content: center;
+
+                flex-wrap: wrap;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .scroll-down {
+                display: none;
+            }
+        }
+
+        /* =========================
+            MOBILE
+        ========================= */
+
+        @media (max-width: 500px) {
+
+            .nav-links a:not(.login-nav) {
+                display: none;
+            }
+
+            .hero {
+                min-height: 850px;
+
+                background-position: center;
+            }
+
+            .hero-content {
+                padding-top: 25px;
+            }
+
+            .hero h1 {
+                font-size: 42px;
+
+                letter-spacing: 1px;
+            }
+
+            .tagline {
+                font-size: 11px;
+
+                letter-spacing: 2px;
+            }
+
+            .tamil-slogan-box {
+                padding:
+                    12px 27px;
+            }
+
+            .tamil-slogan {
+                font-size: 20px;
+
+                line-height: 1.6;
+            }
+
+            .description {
+                font-size: 15px;
+            }
+
+            .buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 230px;
+
+                text-align: center;
+            }
+        }
+
+    </style>
+</head>
+
+
+<body>
+
+
+    <!-- =========================
+         NAVBAR
+    ========================= -->
+
+    <header class="navbar">
+
+        <div class="logo">
+
+            <span class="logo-icon">
+                🥋
+            </span>
+
+            SILAMBAM
+
+        </div>
+
+
+        <nav class="nav-links">
+
+            <a href="/">
+                Home
+            </a>
+
+            <a href="#features">
+                Features
+            </a>
+
+            <a href="#about">
+                About
+            </a>
+
+            <a
+                href="#"
+                class="login-nav"
+                id="openLoginModal"
+            >
+                🔐 Admin Login
+            </a>
+
+        </nav>
+
+    </header>
+
+
+    <!-- =========================
+         HERO SECTION
+    ========================= -->
+
+    <section class="hero">
+
+
+        <!-- Animated actual background -->
+
+        <div class="hero-background"></div>
+
+
+        <!-- Sun glow -->
+
+        <div class="sun-glow"></div>
+
+
+        <!-- Dark bottom -->
+
+        <div class="bottom-shadow"></div>
+
+
+        <!-- Floating particles -->
+
+        <div class="particles">
+
+            <span class="particle"></span>
+            <span class="particle"></span>
+            <span class="particle"></span>
+            <span class="particle"></span>
+            <span class="particle"></span>
+            <span class="particle"></span>
+            <span class="particle"></span>
+            <span class="particle"></span>
+            <span class="particle"></span>
+
+        </div>
+
+
+        <!-- =========================
+             HERO CONTENT
+        ========================= -->
+
+        <div class="hero-content">
+
+
+            <div class="tagline">
+
+                TRADITION • DISCIPLINE • POWER
+
+            </div>
+
+
+            <div class="decorative-line">
+
+                <span class="decorative-symbol">
+                    ✦
+                </span>
+
+            </div>
+
+
+            <h1>
+
+                MEESAIKARAR
+
+                <span class="academy-name">
+                    SILAMBA KOODAM
+                </span>
+
+            </h1>
+
+
+            <!-- Traditional Tamil slogan -->
+
+            <div class="tamil-slogan-box">
+
+                <div class="tamil-slogan">
+
+                    வாழ்க தமிழ்; வளர்க சிலம்பம்
+
+                </div>
+
+            </div>
+
+
+            <p class="description">
+
+                Silambam is not just a martial art.
+                It's a way of life.
+                Build strength, focus and confidence.
+
+            </p>
+
+
+            <!-- Buttons -->
+
+            <div class="buttons">
+
+                <a
+                    href="#"
+                    class="btn btn-primary"
+                    id="openLoginModalBtn"
+                >
+                    🔐 Admin Login
+                </a>
+
+
+                <a
+                    href="#features"
+                    class="btn btn-outline"
+                >
+                    Explore Features →
+                </a>
+
+            </div>
+
+
+        </div>
+
+
+        <!-- Scroll -->
+
+        <div class="scroll-down">
+
+            SCROLL DOWN
+
+            <div class="scroll-arrow">
+                ↓
+            </div>
+
+        </div>
+
+
+    </section>
+
+
+    <!-- =========================
+         FEATURES
+    ========================= -->
+
+    <section
+        class="features"
+        id="features"
+    >
+
+        <h2>
+            Silambam Academy Management
+        </h2>
+
+
+        <p class="features-intro">
+            Manage your academy activities in one place.
+        </p>
+
+
+        <div class="feature-grid">
+
+
+            <div class="feature-card">
+
+                <div class="feature-icon">
+                    👨‍🎓
+                </div>
+
+                <h3>
+                    Students
+                </h3>
+
+                <p>
+                    Manage student information,
+                    belt levels and joining details.
+                </p>
+
+            </div>
+
+
+            <div class="feature-card">
+
+                <div class="feature-icon">
+                    📅
+                </div>
+
+                <h3>
+                    Attendance
+                </h3>
+
+                <p>
+                    Record and manage daily
+                    Silambam class attendance.
+                </p>
+
+            </div>
+
+
+            <div class="feature-card">
+
+                <div class="feature-icon">
+                    🏆
+                </div>
+
+                <h3>
+                    Achievements
+                </h3>
+
+                <p>
+                    Keep track of student
+                    achievements and accomplishments.
+                </p>
+
+            </div>
+
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         FOOTER
+    ========================= -->
+
+    <footer id="about">
+
+        <p>
+            © 2026 Meesaikarar Silamba Koodam
+        </p>
+
+        <p class="tamil-footer">
+            வாழ்க தமிழ்; வளர்க சிலம்பம்
+        </p>
+
+    </footer>
+
+
+    <!-- =========================
+         LOGIN MODAL CONTAINER
+    ========================= -->
+    <div class="login-modal-overlay" id="loginModal">
+        <button class="close-modal-btn" id="closeLoginModal"><i class="fa-solid fa-xmark"></i></button>
+        <div class="login-card-wrapper">
+            <div class="login-card">
+                <h2>Login</h2>
+                <p class="subtitle">Please sign in to continue</p>
+
+                <form>
+                    <div class="input-group">
+                        <i class="fa-regular fa-user"></i>
+                        <input type="text" placeholder="Username" required>
+                    </div>
+
+                    <div class="input-group">
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="password" placeholder="Password" required>
+                    </div>
+
+                    <div class="options">
+                        <label class="remember">
+                            <input type="checkbox"> Remember me
+                        </label>
+                        <a href="#" class="forgot">Forgot password?</a>
+                    </div>
+
+                    <button type="submit" class="login-btn-card">
+                        Login <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </form>
+
+                <div class="divider">
+                    <span>or continue with</span>
+                </div>
+
+                <div class="social-login">
+                    <a href="#" class="social-btn"><i class="fa-brands fa-google"></i></a>
+                    <a href="#" class="social-btn"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a href="#" class="social-btn"><i class="fa-brands fa-apple"></i></a>
+                </div>
+
+                <p class="signup-text">Don't have an account? <a href="#">Sign up</a></p>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- =========================
+         MODAL JAVASCRIPT TOGGLE
+    ========================= -->
+    <script>
+        const modal = document.getElementById('loginModal');
+        const openBtn1 = document.getElementById('openLoginModal');
+        const openBtn2 = document.getElementById('openLoginModalBtn');
+        const closeBtn = document.getElementById('closeLoginModal');
+
+        function openModal(e) {
+            e.preventDefault();
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            modal.classList.remove('active');
+        }
+
+        openBtn1.addEventListener('click', openModal);
+        openBtn2.addEventListener('click', openModal);
+        closeBtn.addEventListener('click', closeModal);
+
+        // Close when clicking outside the card
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+    </script>
+
+</body>
+
+</html>

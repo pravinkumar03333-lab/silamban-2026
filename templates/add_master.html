@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <title>
+        Add Master
+    </title>
+
+</head>
+
+
+<body>
+
+
+    <h1>
+        Add New Master
+    </h1>
+
+
+    {% if error %}
+
+
+        <p
+            style="
+                color:red;
+            "
+        >
+
+            {{ error }}
+
+        </p>
+
+
+    {% endif %}
+
+
+    <form method="POST">
+
+
+        <label>
+
+            Master Username
+
+        </label>
+
+        <br>
+
+
+        <input
+            type="text"
+            name="username"
+            required
+        >
+
+
+        <br><br>
+
+
+        <label>
+
+            Master Password
+
+        </label>
+
+        <br>
+
+
+        <input
+            type="password"
+            name="password"
+            required
+        >
+
+
+        <br><br>
+
+
+        <button
+            type="submit"
+        >
+
+            Create Master
+
+        </button>
+
+
+    </form>
+
+
+    <br>
+
+
+    <a
+        href="{{ url_for('masters') }}"
+    >
+
+        ← Back to Masters
+
+    </a>
+
+
+</body>
+
+</html>

@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Masters / Gurus - Silambam</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/liquid-glass.css') }}">
+
+    <link rel="stylesheet"
+          href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            min-height: 100vh;
+            color: white;
+
+            background:
+                radial-gradient(
+                    circle at 10% 10%,
+                    rgba(255, 174, 0, 0.16),
+                    transparent 30%
+                ),
+                radial-gradient(
+                    circle at 90% 80%,
+                    rgba(255, 80, 0, 0.12),
+                    transparent 32%
+                ),
+                linear-gradient(
+                    135deg,
+                    #050505,
+                    #120b05,
+                    #070707
+                );
+        }
+
+        header {
+            min-height: 75px;
+            padding: 0 5%;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            background: rgba(8, 8, 8, 0.72);
+
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+
+            border-bottom:
+                1px solid rgba(255, 174, 0, 0.25);
+        }
+
+        .logo {
+            color: #ffd700;
+            font-size: 25px;
+            font-weight: bold;
+        }
+
+        nav {
+            display: flex;
+            gap: 10px;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+
+            padding: 10px 15px;
+            border-radius: 12px;
+
+            transition: 0.3s;
+        }
+
+        nav a:hover {
+            background: rgba(255, 215, 0, 0.15);
+            color: #ffd700;
+        }
+
+        .logout {
+            background: rgba(233, 69, 96, 0.18);
+        }
+
+        .container {
+            width: 92%;
+            max-width: 1200px;
+            margin: 35px auto;
+        }
+
+        .page-header,
+        .master-card,
+        .empty-card,
+        .form-card {
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(255, 255, 255, 0.13),
+                    rgba(255, 255, 255, 0.035)
+                );
+
+            backdrop-filter: blur(22px) saturate(140%);
+            -webkit-backdrop-filter: blur(22px) saturate(140%);
+
+            border:
+                1px solid rgba(255, 255, 255, 0.15);
+
+            box-shadow:
+                0 20px 55px rgba(0, 0, 0, 0.40),
+                inset 0 1px 0 rgba(255, 255, 255, 0.18);
+        }
+
+        .page-header {
+            padding: 30px;
+            border-radius: 24px;
+            margin-bottom: 25px;
+        }
+
+        .page-header h1 {
+            color: #ffd700;
+            margin-bottom: 8px;
+        }
+
+        .page-header p {
+            color: rgba(255, 255, 255, 0.65);
+        }
+
+        .form-card {
+            padding: 30px;
+            border-radius: 24px;
+            margin-bottom: 25px;
+        }
+
+        .form-card h2 {
+            color: #ffd700;
+            margin-bottom: 20px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .form-card label {
+            display: block;
+            color: rgba(255, 255, 255, 0.65);
+            font-size: 13px;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+
+        .form-card input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 12px 14px;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .form-card input:focus {
+            outline: none;
+            border-color: rgba(255, 215, 0, 0.5);
+        }
+
+        .master-save {
+            display: block;
+            margin: 22px auto 0;
+            padding: 12px 34px;
+            border: none;
+            border-radius: 25px;
+            background: #ffd700;
+            color: #111;
+            font-weight: bold;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        .master-save:hover {
+            background: #e6c200;
+        }
+
+        .map-picker {
+            margin-top: 22px;
+        }
+
+        .map-picker label {
+            display: block;
+            color: rgba(255, 255, 255, 0.65);
+            font-size: 13px;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .map-search-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .map-search-row input {
+            flex: 1;
+            padding: 12px 14px;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .map-search-row button {
+            padding: 12px 20px;
+            border-radius: 10px;
+            border: none;
+            background: #ffd700;
+            color: #111;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .map-search-row button:hover {
+            background: #e6c200;
+        }
+
+        #mapSearchResults {
+            margin-bottom: 10px;
+        }
+
+        .map-result-item {
+            padding: 10px 14px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 13px;
+            cursor: pointer;
+            margin-bottom: 6px;
+        }
+
+        .map-result-item:hover {
+            background: rgba(255, 215, 0, 0.12);
+            color: #ffd700;
+        }
+
+        #masterMap {
+            width: 100%;
+            height: 320px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .map-hint {
+            margin-top: 8px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.45);
+        }
+
+        .master-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .master-card {
+            padding: 25px;
+            border-radius: 20px;
+
+            transition:
+                transform 0.3s ease,
+                box-shadow 0.3s ease;
+        }
+
+        .master-card:hover {
+            transform: translateY(-7px);
+
+            box-shadow:
+                0 28px 65px rgba(0, 0, 0, 0.48),
+                0 0 30px rgba(255, 174, 0, 0.10);
+        }
+
+        .master-icon {
+            width: 65px;
+            height: 65px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 18px;
+
+            font-size: 32px;
+
+            background:
+                rgba(255, 215, 0, 0.14);
+
+            border:
+                1px solid rgba(255, 215, 0, 0.28);
+
+            margin-bottom: 18px;
+        }
+
+        .master-card h2 {
+            color: #ffd700;
+            margin-bottom: 8px;
+        }
+
+        .master-card p {
+            color: rgba(255, 255, 255, 0.60);
+            line-height: 1.6;
+        }
+
+        .master-status {
+            display: inline-block;
+
+            margin-top: 18px;
+
+            padding: 7px 12px;
+
+            border-radius: 20px;
+
+            background:
+                rgba(46, 204, 113, 0.14);
+
+            color: #7dffae;
+
+            border:
+                1px solid rgba(46, 204, 113, 0.25);
+
+            font-size: 13px;
+        }
+
+        .empty-card {
+            padding: 45px;
+            border-radius: 20px;
+            text-align: center;
+        }
+
+        .empty-card h2 {
+            color: #ffd700;
+            margin-bottom: 10px;
+        }
+
+        .empty-card p {
+            color: rgba(255,255,255,0.6);
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            margin-top: 50px;
+
+            color: rgba(255,255,255,0.4);
+        }
+
+        @media (max-width: 900px) {
+            .master-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+
+            header {
+                flex-direction: column;
+                gap: 12px;
+                padding: 18px 4%;
+            }
+
+            nav {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .master-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+
+    <div class="logo">
+        🥋 SILAMBAM ADMIN
+    </div>
+
+    <nav>
+
+        <a href="{{ url_for('dashboard') }}">
+            📊 Dashboard
+        </a>
+
+        <a href="{{ url_for('logout') }}" class="logout">
+            🚪 Logout
+        </a>
+
+    </nav>
+
+</header>
+
+
+<div class="container">
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+
+        {% if messages %}
+
+            {% for category, message in messages %}
+
+            <div class="{{ 'empty-card' }}" style="padding:16px 24px; margin-bottom:20px; border-radius:14px; color: {{ '#ff8080' if category == 'error' else '#7dffae' }};">
+                {{ message }}
+            </div>
+
+            {% endfor %}
+
+        {% endif %}
+
+    {% endwith %}
+
+
+    <div class="page-header">
+
+        <h1>
+            🥋 Masters / Gurus
+        </h1>
+
+        <p>
+            Manage Silambam masters and their student groups.
+        </p>
+
+    </div>
+
+
+    <div class="form-card">
+
+        <h2>
+            ➕ Add New Master
+        </h2>
+
+        <form method="POST" action="{{ url_for('add_master') }}" id="addMasterForm">
+
+            <div class="form-grid">
+
+                <div>
+                    <label>Full Name</label>
+                    <input type="text" name="name" placeholder="Master's name" required>
+                </div>
+
+                <div>
+                    <label>Username</label>
+                    <input type="text" name="username" placeholder="Unique login username" required>
+                </div>
+
+                <div>
+                    <label>Password</label>
+                    <input type="password" name="password" placeholder="Login password" required>
+                </div>
+
+                <div>
+                    <label>Location</label>
+                    <input type="text" id="locationInput" name="location"
+                           placeholder="Click search or the map below" readonly>
+                </div>
+
+                <div>
+                    <label>Batch</label>
+                    <input type="text" name="batch" placeholder="Batch name (optional)">
+                </div>
+
+            </div>
+
+            <input type="hidden" name="latitude" id="latitudeInput">
+            <input type="hidden" name="longitude" id="longitudeInput">
+
+            <div class="map-picker">
+
+                <label>📍 Pick Location on Map</label>
+
+                <div class="map-search-row">
+                    <input type="text" id="mapSearchInput" placeholder="Search a place, e.g. Kovilankulam">
+                    <button type="button" id="mapSearchBtn">Search</button>
+                </div>
+
+                <div id="mapSearchResults"></div>
+
+                <div id="masterMap"></div>
+
+                <p class="map-hint">Search above, or click anywhere on the map to drop a pin.</p>
+
+            </div>
+
+            <button type="submit" class="master-save">
+                🥋 Add Master
+            </button>
+
+        </form>
+
+
+    </div>
+
+
+    {% if masters %}
+
+    <div class="master-grid">
+
+        {% for master in masters %}
+
+        <div class="master-card">
+
+            <div class="master-icon">
+                🥋
+            </div>
+
+            <h2>
+                {{ master.name }}
+            </h2>
+
+            <p>
+                Username: {{ master.username }}
+                {% if master.location %}<br>📍 {{ master.location }}{% endif %}
+                {% if master.batch %}<br>🥋 Batch: {{ master.batch }}{% endif %}
+            </p>
+
+            {% if master.latitude and master.longitude %}
+
+            <a href="https://www.openstreetmap.org/?mlat={{ master.latitude }}&mlon={{ master.longitude }}#map=15/{{ master.latitude }}/{{ master.longitude }}"
+               target="_blank"
+               rel="noopener"
+               style="display:inline-block; margin-top:10px; color:#7dc4ff; font-size:13px; text-decoration:none;">
+                🗺️ View on map
+            </a>
+
+            {% endif %}
+
+            <span class="master-status">
+                ● Active
+            </span>
+
+            <form method="POST"
+                  action="{{ url_for('delete_master', master_id=master.id) }}"
+                  style="margin-top: 14px;"
+                  onsubmit="return confirm('Delete this master account? This cannot be undone.');">
+
+                <button type="submit"
+                        style="background: rgba(233,69,96,0.18); color:#ff9db0; border:1px solid rgba(233,69,96,0.4); padding:8px 16px; border-radius:20px; cursor:pointer; font-weight:bold; font-size:13px;">
+                    🗑️ Delete
+                </button>
+
+            </form>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+    {% else %}
+
+    <div class="empty-card">
+
+        <h2>
+            👨‍🏫 No Masters Yet
+        </h2>
+
+        <p>
+            Master / Guru accounts will appear here.
+        </p>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+
+<footer>
+    © 2026 Silambam Class Management System
+    | All Rights Reserved
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+
+    // Default view centered roughly on Madurai district, Tamil Nadu.
+    // Feel free to change these two numbers to your own area.
+    var DEFAULT_LAT = 9.9252;
+    var DEFAULT_LNG = 78.1198;
+
+    var map = L.map('masterMap').setView([DEFAULT_LAT, DEFAULT_LNG], 10);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    var marker = null;
+
+    function setMarker(lat, lng, label) {
+
+        if (marker) {
+            map.removeLayer(marker);
+        }
+
+        marker = L.marker([lat, lng]).addTo(map);
+        map.setView([lat, lng], 14);
+
+        document.getElementById('latitudeInput').value = lat;
+        document.getElementById('longitudeInput').value = lng;
+
+        if (label) {
+            document.getElementById('locationInput').value = label;
+        }
+    }
+
+    // Click anywhere on the map to drop a pin there.
+    map.on('click', function (e) {
+
+        var lat = e.latlng.lat;
+        var lng = e.latlng.lng;
+
+        setMarker(lat, lng, null);
+
+        // Reverse geocode so the Location field gets a readable name.
+        fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat=' + lat + '&lon=' + lng)
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+                var name = data.display_name || (lat.toFixed(5) + ', ' + lng.toFixed(5));
+                document.getElementById('locationInput').value = name;
+            })
+            .catch(function () {
+                document.getElementById('locationInput').value = lat.toFixed(5) + ', ' + lng.toFixed(5);
+            });
+    });
+
+    // Search box using OpenStreetMap's free Nominatim geocoder.
+    function runSearch() {
+
+        var query = document.getElementById('mapSearchInput').value.trim();
+        var resultsBox = document.getElementById('mapSearchResults');
+
+        resultsBox.innerHTML = '';
+
+        if (!query) {
+            return;
+        }
+
+        fetch('https://nominatim.openstreetmap.org/search?format=json&limit=5&q=' + encodeURIComponent(query))
+            .then(function (res) { return res.json(); })
+            .then(function (results) {
+
+                if (!results.length) {
+                    resultsBox.innerHTML = '<div class="map-result-item">No results found.</div>';
+                    return;
+                }
+
+                results.forEach(function (place) {
+
+                    var item = document.createElement('div');
+                    item.className = 'map-result-item';
+                    item.textContent = place.display_name;
+
+                    item.addEventListener('click', function () {
+                        setMarker(parseFloat(place.lat), parseFloat(place.lon), place.display_name);
+                        resultsBox.innerHTML = '';
+                        document.getElementById('mapSearchInput').value = place.display_name;
+                    });
+
+                    resultsBox.appendChild(item);
+                });
+            });
+    }
+
+    document.getElementById('mapSearchBtn').addEventListener('click', runSearch);
+
+    document.getElementById('mapSearchInput').addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            runSearch();
+        }
+    });
+
+</script>
+
+</body>
+
+</html>

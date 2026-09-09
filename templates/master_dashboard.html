@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>
+        Master Dashboard
+    </title>
+
+</head>
+
+
+<body>
+
+
+    <h1>
+
+        🥋 Welcome Master
+
+        {{ session.get("username") }}
+
+    </h1>
+
+
+    <a
+        href="{{ url_for('master_add_student') }}"
+    >
+
+        ➕ Add Student
+
+    </a>
+
+
+    <br><br>
+
+
+    <a
+        href="{{ url_for('logout') }}"
+    >
+
+        🚪 Logout
+
+    </a>
+
+
+    <hr>
+
+
+    <h2>
+
+        My Students
+
+    </h2>
+
+
+    {% if students %}
+
+
+        <table
+            border="1"
+            cellpadding="10"
+        >
+
+
+            <tr>
+
+                <th>
+                    Name
+                </th>
+
+
+                <th>
+                    Age
+                </th>
+
+
+                <th>
+                    Phone
+                </th>
+
+
+                <th>
+                    Belt
+                </th>
+
+            </tr>
+
+
+            {% for student in students %}
+
+
+            <tr>
+
+                <td>
+
+                    {{ student.name }}
+
+                </td>
+
+
+                <td>
+
+                    {{ student.age }}
+
+                </td>
+
+
+                <td>
+
+                    {{ student.phone }}
+
+                </td>
+
+
+                <td>
+
+                    {{ student.belt }}
+
+                </td>
+
+            </tr>
+
+
+            {% endfor %}
+
+
+        </table>
+
+
+    {% else %}
+
+
+        <p>
+
+            No students assigned to you yet.
+
+        </p>
+
+
+    {% endif %}
+
+
+</body>
+
+</html>

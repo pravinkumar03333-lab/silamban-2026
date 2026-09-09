@@ -582,11 +582,26 @@
         }
 
     </style>
-
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='css/liquid-glass.css') }}">
 </head>
 
 
 <body>
+
+<div class="liquid-background">
+
+    <div class="liquid liquid-one"></div>
+    <div class="liquid liquid-two"></div>
+    <div class="liquid liquid-three"></div>
+    <div class="liquid liquid-four"></div>
+
+</div>
+
+<div class="grain"></div>
+
+<div class="mouse-glow"
+     id="mouseGlow"></div>
 
 
 <!-- HEADER -->
@@ -1301,6 +1316,7 @@
 
 </footer>
 
+<script src="{{ url_for('static', filename='js/liquid-glass.js') }}"></script>
 
 </body>
 

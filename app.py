@@ -1,8 +1,9 @@
 import os
+
+from dotenv import load_dotenv
 from datetime import date
 from functools import wraps
 
-from dotenv import load_dotenv
 from flask import (
     Flask,
     render_template,
@@ -12,8 +13,12 @@ from flask import (
     session,
     flash
 )
+
 from flask_sqlalchemy import SQLAlchemy
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import (
+    generate_password_hash,
+    check_password_hash
+)
 
 
 # =========================================================
@@ -31,7 +36,7 @@ app = Flask(__name__)
 
 app.config["SECRET_KEY"] = os.environ.get(
     "SECRET_KEY",
-    "change-this-secret-key-for-production"
+    "silambam-secret-key-2026"
 )
 
 
@@ -43,8 +48,8 @@ database_url = os.environ.get("DATABASE_URL")
 
 if database_url:
 
-    # Convert old postgres:// format if necessary
     if database_url.startswith("postgres://"):
+
         database_url = database_url.replace(
             "postgres://",
             "postgresql://",
@@ -55,17 +60,19 @@ if database_url:
 
 else:
 
-    # Local SQLite database
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///silambam.db"
+    app.config["SQLALCHEMY_DATABASE_URI"] = (
+        "sqlite:///silambam.db"
+    )
 
 
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
 
 db = SQLAlchemy(app)
 
 
 # =========================================================
-# DATABASE MODELS
+# ADMIN MODEL
 # =========================================================
 
 class Admin(db.Model):
@@ -86,6 +93,58 @@ class Admin(db.Model):
         nullable=False
     )
 
+
+# =========================================================
+# MASTER MODEL
+# =========================================================
+
+class Master(db.Model):
+
+    id = db.Column(
+        db.Integer,
+        primary_key=True
+    )
+
+    name = db.Column(
+        db.String(150),
+        nullable=False
+    )
+
+    username = db.Column(
+        db.String(100),
+        unique=True,
+        nullable=False
+    )
+
+    password_hash = db.Column(
+        db.String(255),
+        nullable=False
+    )
+
+    location = db.Column(
+        db.String(200),
+        nullable=True
+    )
+
+    latitude = db.Column(
+        db.Float,
+        nullable=True
+    )
+
+    longitude = db.Column(
+        db.Float,
+        nullable=True
+    )
+
+    batch = db.Column(
+        db.String(100),
+        nullable=True
+    )
+
+
+# =========================================================
+# STUDENT MODEL
+# =========================================================
 
 class Student(db.Model):
 
@@ -119,6 +178,26 @@ class Student(db.Model):
         nullable=False
     )
 
+    master_id = db.Column(
+        db.Integer,
+        db.ForeignKey("master.id"),
+        nullable=True
+    )
+
+    location = db.Column(
+        db.String(200),
+        nullable=True
+    )
+
+    batch = db.Column(
+        db.String(100),
+        nullable=True
+    )
+
+
+# =========================================================
+# ATTENDANCE MODEL
+# =========================================================
 
 class Attendance(db.Model):
 
@@ -148,6 +227,10 @@ class Attendance(db.Model):
     )
 
 
+# =========================================================
+# FEE MODEL
+# =========================================================
+
 class Fee(db.Model):
 
     id = db.Column(
@@ -159,6 +242,11 @@ class Fee(db.Model):
         db.Integer,
         db.ForeignKey("student.id"),
         nullable=False
+    )
+
+    month = db.Column(
+        db.String(20),
+        nullable=True
     )
 
     amount = db.Column(
@@ -181,6 +269,10 @@ class Fee(db.Model):
     )
 
 
+# =========================================================
+# ACHIEVEMENT MODEL
+# =========================================================
+
 class Achievement(db.Model):
 
     id = db.Column(
@@ -194,8 +286,18 @@ class Achievement(db.Model):
         nullable=False
     )
 
-    title = db.Column(
+    event = db.Column(
         db.String(200),
+        nullable=False
+    )
+
+    location = db.Column(
+        db.String(200),
+        nullable=True
+    )
+
+    position = db.Column(
+        db.String(50),
         nullable=False
     )
 
@@ -215,15 +317,16 @@ class Achievement(db.Model):
 
 
 # =========================================================
-# LOGIN PROTECTION
+# LOGIN REQUIRED
 # =========================================================
 
 def login_required(function):
 
     @wraps(function)
+
     def decorated_function(*args, **kwargs):
 
-        if "admin_id" not in session:
+        if "user_id" not in session:
 
             flash(
                 "Please login first.",
@@ -243,7 +346,58 @@ def login_required(function):
 
 
 # =========================================================
-# HOME PAGE
+# ADMIN REQUIRED
+# =========================================================
+
+def admin_required(function):
+
+    @wraps(function)
+
+    def decorated_function(*args, **kwargs):
+
+        if "user_id" not in session:
+
+            return redirect(
+                url_for("login")
+            )
+
+        if session.get("user_role") != "admin":
+
+            flash(
+                "Admin access required.",
+                "error"
+            )
+
+            return redirect(
+                url_for("dashboard")
+            )
+
+        return function(
+            *args,
+            **kwargs
+        )
+
+    return decorated_function
+
+
+# =========================================================
+# CURRENT MASTER HELPER
+#
+# Returns the logged-in master's id if the current session
+# belongs to a master, otherwise None (admin sees everything).
+# =========================================================
+
+def current_master_id():
+
+    if session.get("user_role") == "master":
+
+        return session.get("master_id")
+
+    return None
+
+
+# =========================================================
+# HOME
 # =========================================================
 
 @app.route("/")
@@ -256,6 +410,12 @@ def home():
 
 # =========================================================
 # LOGIN
+#
+# IMPORTANT:
+# GET  -> Opens login page
+# POST -> Processes login
+#
+# This fixes "Method Not Allowed"
 # =========================================================
 
 @app.route(
@@ -264,6 +424,17 @@ def home():
 )
 def login():
 
+    # Already logged in
+    if request.method == "GET":
+
+        if "user_id" in session:
+
+            return redirect(
+                url_for("dashboard")
+            )
+
+
+    # Process Login
     if request.method == "POST":
 
         username = request.form.get(
@@ -276,39 +447,93 @@ def login():
             ""
         )
 
-        if not username or not password:
+        role = request.form.get(
+            "role",
+            "admin"
+        )
 
-            flash(
-                "Please enter username and password.",
-                "error"
-            )
 
-            return render_template(
-                "login.html"
-            )
+        # =================================================
+        # ADMIN LOGIN
+        # =================================================
 
-        admin = Admin.query.filter_by(
-            username=username
-        ).first()
+        if role == "admin":
 
-        if admin and check_password_hash(
-            admin.password_hash,
-            password
-        ):
+            admin = Admin.query.filter_by(
+                username=username
+            ).first()
 
-            session.clear()
 
-            session["admin_id"] = admin.id
-            session["admin_username"] = admin.username
+            if admin and check_password_hash(
+                admin.password_hash,
+                password
+            ):
 
-            return redirect(
-                url_for("dashboard")
-            )
+                session.clear()
+
+                session["user_id"] = admin.id
+
+                session["user_role"] = "admin"
+
+                session["username"] = admin.username
+
+
+                flash(
+                    "Admin login successful!",
+                    "success"
+                )
+
+
+                return redirect(
+                    url_for("dashboard")
+                )
+
+
+        # =================================================
+        # MASTER LOGIN
+        # =================================================
+
+        elif role == "master":
+
+            master = Master.query.filter_by(
+                username=username
+            ).first()
+
+
+            if master and check_password_hash(
+                master.password_hash,
+                password
+            ):
+
+                session.clear()
+
+                session["user_id"] = master.id
+
+                session["user_role"] = "master"
+
+                session["username"] = master.username
+
+                session["master_id"] = master.id
+
+                session["master_name"] = master.name
+
+
+                flash(
+                    "Master login successful!",
+                    "success"
+                )
+
+
+                return redirect(
+                    url_for("dashboard")
+                )
+
 
         flash(
-            "Invalid username or password.",
+            "Invalid username, password or login type.",
             "error"
         )
+
 
     return render_template(
         "login.html"
@@ -324,10 +549,12 @@ def logout():
 
     session.clear()
 
+
     flash(
-        "You have been logged out.",
+        "You have logged out successfully.",
         "success"
     )
+
 
     return redirect(
         url_for("home")
@@ -342,31 +569,82 @@ def logout():
 @login_required
 def dashboard():
 
-    total_students = Student.query.count()
+    master_id = current_master_id()
+
+    student_query = Student.query
+
+    if master_id:
+
+        student_query = student_query.filter_by(
+            master_id=master_id
+        )
+
+    total_students = student_query.count()
+
+    my_student_ids = [
+        s.id for s in student_query.all()
+    ]
+
 
     today = date.today().strftime(
         "%Y-%m-%d"
     )
 
-    present_today = Attendance.query.filter_by(
+
+    attendance_query = Attendance.query.filter_by(
         attendance_date=today,
         status="Present"
-    ).count()
+    )
 
-    fees_collected = db.session.query(
-        db.func.sum(Fee.amount)
+    if master_id:
+
+        attendance_query = attendance_query.filter(
+            Attendance.student_id.in_(my_student_ids)
+        )
+
+    present_today = attendance_query.count()
+
+
+    fees_query = db.session.query(
+        db.func.sum(
+            Fee.amount
+        )
     ).filter(
         Fee.status == "Paid"
-    ).scalar() or 0
+    )
 
-    achievements_count = Achievement.query.count()
+    if master_id:
+
+        fees_query = fees_query.filter(
+            Fee.student_id.in_(my_student_ids)
+        )
+
+    fees_collected = fees_query.scalar() or 0
+
+
+    achievements_query = Achievement.query
+
+    if master_id:
+
+        achievements_query = achievements_query.filter(
+            Achievement.student_id.in_(my_student_ids)
+        )
+
+    achievements_count = achievements_query.count()
+
 
     return render_template(
+
         "dashboard.html",
+
         total_students=total_students,
+
         present_today=present_today,
+
         fees_collected=fees_collected,
+
         achievements_count=achievements_count
+
     )
 
 
@@ -378,13 +656,34 @@ def dashboard():
 @login_required
 def students_page():
 
-    students = Student.query.order_by(
+    query = Student.query
+
+    master_id = current_master_id()
+
+    if master_id:
+
+        query = query.filter_by(
+            master_id=master_id
+        )
+
+    students = query.order_by(
         Student.id.desc()
     ).all()
 
+
+    masters = Master.query.order_by(
+        Master.name
+    ).all()
+
+
     return render_template(
+
         "students.html",
-        students=students
+
+        students=students,
+
+        masters=masters
+
     )
 
 
@@ -404,36 +703,65 @@ def add_student():
         ""
     ).strip()
 
+
     age = request.form.get(
         "age",
         ""
     ).strip()
+
 
     phone = request.form.get(
         "phone",
         ""
     ).strip()
 
+
     belt = request.form.get(
         "belt",
         ""
     ).strip()
+
 
     join_date = request.form.get(
         "join_date",
         ""
     ).strip()
 
-    if not name or not age or not phone or not belt or not join_date:
+
+    master_id = request.form.get(
+        "master_id"
+    )
+
+
+    location = request.form.get(
+        "location",
+        ""
+    ).strip()
+
+
+    batch = request.form.get(
+        "batch",
+        ""
+    ).strip()
+
+
+    if not all([
+        name,
+        age,
+        phone,
+        belt,
+        join_date
+    ]):
 
         flash(
-            "Please fill all student details.",
+            "Please fill all required student details.",
             "error"
         )
 
         return redirect(
             url_for("students_page")
         )
+
 
     try:
 
@@ -450,22 +778,58 @@ def add_student():
             url_for("students_page")
         )
 
+
+    if master_id:
+
+        master_id = int(
+            master_id
+        )
+
+    else:
+
+        master_id = None
+
+
+    # A logged-in master can only ever add students to
+    # themselves, regardless of what the form sent.
+    if current_master_id():
+
+        master_id = current_master_id()
+
+
     student = Student(
+
         name=name,
+
         age=age,
+
         phone=phone,
+
         belt=belt,
-        join_date=join_date
+
+        join_date=join_date,
+
+        master_id=master_id,
+
+        location=location,
+
+        batch=batch
+
     )
 
-    db.session.add(student)
+
+    db.session.add(
+        student
+    )
 
     db.session.commit()
+
 
     flash(
         "Student added successfully.",
         "success"
     )
+
 
     return redirect(
         url_for("students_page")
@@ -488,28 +852,49 @@ def delete_student(student_id):
         student_id
     )
 
+
+    master_id = current_master_id()
+
+    if master_id and student.master_id != master_id:
+
+        flash(
+            "You can only delete your own students.",
+            "error"
+        )
+
+        return redirect(
+            url_for("students_page")
+        )
+
+
     Attendance.query.filter_by(
         student_id=student.id
     ).delete()
+
 
     Fee.query.filter_by(
         student_id=student.id
     ).delete()
 
+
     Achievement.query.filter_by(
         student_id=student.id
     ).delete()
+
 
     db.session.delete(
         student
     )
 
+
     db.session.commit()
 
+
     flash(
-        "Student deleted.",
+        "Student deleted successfully.",
         "success"
     )
+
 
     return redirect(
         url_for("students_page")
@@ -524,19 +909,40 @@ def delete_student(student_id):
 @login_required
 def attendance_page():
 
-    students = Student.query.order_by(
+    selected_date = request.args.get(
+
+        "date",
+
+        date.today().strftime(
+            "%Y-%m-%d"
+        )
+
+    )
+
+
+    query = Student.query
+
+    master_id = current_master_id()
+
+    if master_id:
+
+        query = query.filter_by(
+            master_id=master_id
+        )
+
+    students = query.order_by(
         Student.name
     ).all()
 
-    selected_date = request.args.get(
-        "date",
-        date.today().strftime("%Y-%m-%d")
-    )
 
     return render_template(
+
         "attendance.html",
+
         students=students,
+
         selected_date=selected_date
+
     )
 
 
@@ -555,10 +961,11 @@ def save_attendance():
         "attendance_date"
     )
 
+
     if not attendance_date:
 
         flash(
-            "Attendance date is required.",
+            "Please select attendance date.",
             "error"
         )
 
@@ -566,19 +973,39 @@ def save_attendance():
             url_for("attendance_page")
         )
 
-    students = Student.query.all()
+
+    students = Student.query
+
+    master_id = current_master_id()
+
+    if master_id:
+
+        students = students.filter_by(
+            master_id=master_id
+        )
+
+    students = students.all()
+
 
     for student in students:
 
         status = request.form.get(
+
             f"status_{student.id}",
+
             "Absent"
+
         )
 
+
         existing = Attendance.query.filter_by(
+
             student_id=student.id,
+
             attendance_date=attendance_date
+
         ).first()
+
 
         if existing:
 
@@ -587,50 +1014,93 @@ def save_attendance():
         else:
 
             record = Attendance(
+
                 student_id=student.id,
+
                 attendance_date=attendance_date,
+
                 status=status
+
             )
+
 
             db.session.add(
                 record
             )
 
+
     db.session.commit()
+
 
     flash(
         "Attendance saved successfully.",
         "success"
     )
 
+
     return redirect(
+
         url_for(
+
             "attendance_page",
+
             date=attendance_date
+
         )
+
     )
 
 
 # =========================================================
-# FEES PAGE
+# FEES
 # =========================================================
 
 @app.route("/fees")
 @login_required
 def fees_page():
 
-    students = Student.query.order_by(
+    student_query = Student.query
+
+    master_id = current_master_id()
+
+    my_student_ids = None
+
+    if master_id:
+
+        student_query = student_query.filter_by(
+            master_id=master_id
+        )
+
+        my_student_ids = [
+            s.id for s in student_query.all()
+        ]
+
+    students = student_query.order_by(
         Student.name
     ).all()
 
-    fees = Fee.query.order_by(
+
+    fees_query = Fee.query
+
+    if my_student_ids is not None:
+
+        fees_query = fees_query.filter(
+            Fee.student_id.in_(my_student_ids)
+        )
+
+    fees = fees_query.order_by(
         Fee.id.desc()
     ).all()
 
+
     return render_template(
+
         "fees.html",
+
         students=students,
+
         fees=fees
+
     )
 
 
@@ -639,65 +1109,49 @@ def fees_page():
 # =========================================================
 
 @app.route(
-    "/add_fee",
+    "/save_fee",
     methods=["POST"]
 )
 @login_required
-def add_fee():
+def save_fee():
 
-    student_id = request.form.get(
-        "student_id"
-    )
+    student_name = request.form.get(
+        "student",
+        ""
+    ).strip()
+
+
+    month = request.form.get(
+        "month",
+        ""
+    ).strip()
+
 
     amount = request.form.get(
         "amount"
     )
 
-    payment_date = request.form.get(
-        "payment_date"
-    )
 
     status = request.form.get(
         "status",
-        "Paid"
+        "Pending"
     )
 
-    if not student_id or not amount or not payment_date:
 
-        flash(
-            "Please fill all fee details.",
-            "error"
-        )
-
-        return redirect(
-            url_for("fees_page")
-        )
-
-    try:
-
-        student_id = int(student_id)
-        amount = float(amount)
-
-    except (ValueError, TypeError):
-
-        flash(
-            "Invalid fee details.",
-            "error"
-        )
-
-        return redirect(
-            url_for("fees_page")
-        )
-
-    student = db.session.get(
-        Student,
-        student_id
+    payment_date = request.form.get(
+        "date"
     )
+
+
+    student = Student.query.filter_by(
+        name=student_name
+    ).first()
+
 
     if not student:
 
         flash(
-            "Student not found.",
+            "Please select a valid student.",
             "error"
         )
 
@@ -705,12 +1159,56 @@ def add_fee():
             url_for("fees_page")
         )
 
+
+    master_id = current_master_id()
+
+    if master_id and student.master_id != master_id:
+
+        flash(
+            "You can only add fees for your own students.",
+            "error"
+        )
+
+        return redirect(
+            url_for("fees_page")
+        )
+
+
+    try:
+
+        amount = float(
+            amount
+        )
+
+    except (
+        ValueError,
+        TypeError
+    ):
+
+        flash(
+            "Invalid fee information.",
+            "error"
+        )
+
+        return redirect(
+            url_for("fees_page")
+        )
+
+
     fee = Fee(
-        student_id=student_id,
+
+        student_id=student.id,
+
+        month=month,
+
         amount=amount,
+
         payment_date=payment_date,
+
         status=status
+
     )
+
 
     db.session.add(
         fee
@@ -718,10 +1216,12 @@ def add_fee():
 
     db.session.commit()
 
+
     flash(
-        "Fee record added successfully.",
+        "Fee added successfully.",
         "success"
     )
+
 
     return redirect(
         url_for("fees_page")
@@ -729,25 +1229,55 @@ def add_fee():
 
 
 # =========================================================
-# ACHIEVEMENTS PAGE
+# ACHIEVEMENTS
 # =========================================================
 
 @app.route("/achievements")
 @login_required
 def achievements_page():
 
-    students = Student.query.order_by(
+    student_query = Student.query
+
+    master_id = current_master_id()
+
+    my_student_ids = None
+
+    if master_id:
+
+        student_query = student_query.filter_by(
+            master_id=master_id
+        )
+
+        my_student_ids = [
+            s.id for s in student_query.all()
+        ]
+
+    students = student_query.order_by(
         Student.name
     ).all()
 
-    achievements = Achievement.query.order_by(
+
+    achievements_query = Achievement.query
+
+    if my_student_ids is not None:
+
+        achievements_query = achievements_query.filter(
+            Achievement.student_id.in_(my_student_ids)
+        )
+
+    achievements = achievements_query.order_by(
         Achievement.id.desc()
     ).all()
 
+
     return render_template(
+
         "achievements.html",
+
         students=students,
+
         achievements=achievements
+
     )
 
 
@@ -756,78 +1286,98 @@ def achievements_page():
 # =========================================================
 
 @app.route(
-    "/add_achievement",
+    "/save_achievement",
     methods=["POST"]
 )
 @login_required
-def add_achievement():
+def save_achievement():
 
-    student_id = request.form.get(
-        "student_id"
-    )
-
-    title = request.form.get(
-        "title",
+    student_name = request.form.get(
+        "student",
         ""
     ).strip()
+
+
+    event = request.form.get(
+        "event",
+        ""
+    ).strip()
+
+
+    location = request.form.get(
+        "location",
+        ""
+    ).strip()
+
+
+    achievement_date = request.form.get(
+        "date"
+    )
+
+
+    position = request.form.get(
+        "position",
+        ""
+    ).strip()
+
 
     description = request.form.get(
         "description",
         ""
     ).strip()
 
-    achievement_date = request.form.get(
-        "achievement_date"
-    )
 
-    if not student_id or not title or not achievement_date:
+    student = Student.query.filter_by(
+        name=student_name
+    ).first()
+
+
+    if not student or not event or not achievement_date or not position:
 
         flash(
-            "Student, achievement title and date are required.",
+            "Please fill all required achievement details.",
             "error"
         )
 
         return redirect(
-            url_for("achievements_page")
+            url_for(
+                "achievements_page"
+            )
         )
 
-    try:
 
-        student_id = int(student_id)
+    master_id = current_master_id()
 
-    except ValueError:
+    if master_id and student.master_id != master_id:
 
         flash(
-            "Invalid student.",
+            "You can only add achievements for your own students.",
             "error"
         )
 
         return redirect(
-            url_for("achievements_page")
+            url_for(
+                "achievements_page"
+            )
         )
 
-    student = db.session.get(
-        Student,
-        student_id
-    )
-
-    if not student:
-
-        flash(
-            "Student not found.",
-            "error"
-        )
-
-        return redirect(
-            url_for("achievements_page")
-        )
 
     achievement = Achievement(
-        student_id=student_id,
-        title=title,
+
+        student_id=student.id,
+
+        event=event,
+
+        location=location,
+
+        position=position,
+
         description=description,
+
         achievement_date=achievement_date
+
     )
+
 
     db.session.add(
         achievement
@@ -835,13 +1385,209 @@ def add_achievement():
 
     db.session.commit()
 
+
     flash(
         "Achievement added successfully.",
         "success"
     )
 
+
     return redirect(
-        url_for("achievements_page")
+        url_for(
+            "achievements_page"
+        )
+    )
+
+
+# =========================================================
+# MASTERS PAGE
+# =========================================================
+
+@app.route("/masters")
+@admin_required
+def masters_page():
+
+    masters = Master.query.order_by(
+        Master.name
+    ).all()
+
+
+    return render_template(
+
+        "masters.html",
+
+        masters=masters
+
+    )
+
+
+# =========================================================
+# ADD MASTER
+# =========================================================
+
+@app.route(
+    "/add_master",
+    methods=["POST"]
+)
+@admin_required
+def add_master():
+
+    name = request.form.get(
+        "name",
+        ""
+    ).strip()
+
+
+    username = request.form.get(
+        "username",
+        ""
+    ).strip()
+
+
+    password = request.form.get(
+        "password",
+        ""
+    )
+
+
+    location = request.form.get(
+        "location",
+        ""
+    ).strip()
+
+
+    latitude = request.form.get(
+        "latitude",
+        ""
+    ).strip()
+
+
+    longitude = request.form.get(
+        "longitude",
+        ""
+    ).strip()
+
+
+    latitude = float(latitude) if latitude else None
+
+    longitude = float(longitude) if longitude else None
+
+
+    batch = request.form.get(
+        "batch",
+        ""
+    ).strip()
+
+
+    if not name or not username or not password:
+
+        flash(
+            "Name, username and password are required.",
+            "error"
+        )
+
+        return redirect(
+            url_for(
+                "masters_page"
+            )
+        )
+
+
+    existing = Master.query.filter_by(
+        username=username
+    ).first()
+
+
+    if existing:
+
+        flash(
+            "This master username already exists.",
+            "error"
+        )
+
+        return redirect(
+            url_for(
+                "masters_page"
+            )
+        )
+
+
+    master = Master(
+
+        name=name,
+
+        username=username,
+
+        password_hash=generate_password_hash(
+            password
+        ),
+
+        location=location,
+
+        latitude=latitude,
+
+        longitude=longitude,
+
+        batch=batch
+
+    )
+
+
+    db.session.add(
+        master
+    )
+
+    db.session.commit()
+
+
+    flash(
+        "Master added successfully.",
+        "success"
+    )
+
+
+    return redirect(
+        url_for(
+            "masters_page"
+        )
+    )
+
+
+# =========================================================
+# DELETE MASTER
+# =========================================================
+
+@app.route(
+    "/delete_master/<int:master_id>",
+    methods=["POST"]
+)
+@admin_required
+def delete_master(master_id):
+
+    master = db.get_or_404(
+        Master,
+        master_id
+    )
+
+
+    db.session.delete(
+        master
+    )
+
+
+    db.session.commit()
+
+
+    flash(
+        "Master deleted successfully.",
+        "success"
+    )
+
+
+    return redirect(
+        url_for(
+            "masters_page"
+        )
     )
 
 
@@ -853,53 +1599,49 @@ def initialize_database():
 
     with app.app_context():
 
-        # Create all tables
         db.create_all()
 
-        # Read admin credentials from .env
-        username = os.environ.get(
+
+        # ---------------------------------------------
+        # CREATE DEFAULT ADMIN
+        # ---------------------------------------------
+
+        admin_username = os.environ.get(
             "ADMIN_USERNAME",
             "admin"
-        ).strip()
-
-        password = os.environ.get(
-            "ADMIN_PASSWORD",
-            "password"
         )
 
-        # Find existing admin
+
+        admin_password = os.environ.get(
+            "ADMIN_PASSWORD",
+            "admin123"
+        )
+
+
         admin = Admin.query.filter_by(
-            username=username
+            username=admin_username
         ).first()
+
 
         if not admin:
 
-            # Create admin account
             admin = Admin(
-                username=username,
+
+                username=admin_username,
+
                 password_hash=generate_password_hash(
-                    password
+                    admin_password
                 )
+
             )
+
 
             db.session.add(
                 admin
             )
 
-        else:
 
-            # Update password if .env password
-            # is different from the stored password
-            if not check_password_hash(
-                admin.password_hash,
-                password
-            ):
-
-                admin.password_hash = generate_password_hash(
-                    password
-                )
-
-        db.session.commit()
+            db.session.commit()
 
 
 # =========================================================
@@ -916,7 +1658,11 @@ initialize_database()
 if __name__ == "__main__":
 
     app.run(
+
         debug=True,
+
         host="127.0.0.1",
+
         port=5000
+
     )

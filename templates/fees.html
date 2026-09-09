@@ -123,6 +123,8 @@ td {
     padding: 14px;
     text-align: center;
     border-bottom: 1px solid #eee;
+    color: #174ea6 !important;
+    font-weight: bold;
 }
 
 .paid {
@@ -148,11 +150,26 @@ footer {
 }
 
 </style>
-
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='css/liquid-glass.css') }}">
 </head>
 
 
 <body>
+
+<div class="liquid-background">
+
+    <div class="liquid liquid-one"></div>
+    <div class="liquid liquid-two"></div>
+    <div class="liquid liquid-three"></div>
+    <div class="liquid liquid-four"></div>
+
+</div>
+
+<div class="grain"></div>
+
+<div class="mouse-glow"
+     id="mouseGlow"></div>
 
 
 <header>
@@ -378,7 +395,7 @@ Add Students
 </td>
 
 <td>
-👤 {{ fee.student }}
+👤 {{ fee.student.name }}
 </td>
 
 <td>
@@ -408,7 +425,7 @@ Add Students
 </td>
 
 <td>
-{{ fee.date }}
+{{ fee.payment_date }}
 </td>
 
 </tr>
@@ -442,6 +459,7 @@ Add Students
 
 </footer>
 
+<script src="{{ url_for('static', filename='js/liquid-glass.js') }}"></script>
 
 </body>
 

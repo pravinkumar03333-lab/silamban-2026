@@ -1361,6 +1361,10 @@
     🔐 Admin Login
 </a>
 
+       <a href="#" class="login-nav" id="openMasterLoginModal">
+    🥋 Master Login
+</a>
+
         </nav>
 
     </header>
@@ -1465,7 +1469,9 @@
 
             <div class="buttons">
 
-              <a href="#" class="btn btn-primary" id="openLoginModalBtn">🔑 Master Login</a>
+              <a href="#" class="btn btn-primary" id="openLoginModalBtn">🔐 Admin Login</a>
+
+              <a href="#" class="btn btn-outline" id="openMasterLoginModalBtn">🥋 Master Login</a>
 
                 <a
                     href="#features"
@@ -1601,18 +1607,12 @@
         <button class="close-modal-btn" id="closeLoginModal"><i class="fa-solid fa-xmark"></i></button>
         <div class="login-card-wrapper">
             <div class="login-card">
-                <h2 id="loginHeading">Admin Login</h2>
+                <h2 id="loginModalTitle">Admin Login</h2>
                 <p class="subtitle">Please sign in to continue</p>
 
                <form method="POST" action="{{ url_for('login') }}">
 
-    <div class="role-toggle">
-        <input type="radio" id="roleAdmin" name="role" value="admin" checked>
-        <label for="roleAdmin">Admin</label>
-
-        <input type="radio" id="roleMaster" name="role" value="master">
-        <label for="roleMaster">Master</label>
-    </div>
+    <input type="hidden" name="role" id="roleField" value="admin">
 
     <div class="input-group">
         <i class="fa-regular fa-user"></i>
@@ -1641,21 +1641,10 @@
     </button>
 
 </form>
-
-                <div class="divider">
-                    <span>or continue with</span>
-                </div>
-
-                <div class="social-login">
-                    <a href="#" class="social-btn"><i class="fa-brands fa-google"></i></a>
-                    <a href="#" class="social-btn"><i class="fa-brands fa-facebook-f"></i></a>
-                    <a href="#" class="social-btn"><i class="fa-brands fa-apple"></i></a>
-                </div>
-
-                <p class="signup-text">Don't have an account? <a href="#">Sign up</a></p>
             </div>
         </div>
     </div>
+
 
 
     <!-- =========================
@@ -1665,41 +1654,35 @@
         const modal = document.getElementById('loginModal');
         const openBtn1 = document.getElementById('openLoginModal');
         const openBtn2 = document.getElementById('openLoginModalBtn');
+        const openBtn3 = document.getElementById('openMasterLoginModal');
+        const openBtn4 = document.getElementById('openMasterLoginModalBtn');
         const closeBtn = document.getElementById('closeLoginModal');
+        const roleField = document.getElementById('roleField');
+        const modalTitle = document.getElementById('loginModalTitle');
 
-        const loginHeading = document.getElementById('loginHeading');
-        const roleAdminInput = document.getElementById('roleAdmin');
-        const roleMasterInput = document.getElementById('roleMaster');
-
-        function setActiveRole(role) {
-            if (role === 'master') {
-                roleMasterInput.checked = true;
-                loginHeading.textContent = 'Master Login';
-            } else {
-                roleAdminInput.checked = true;
-                loginHeading.textContent = 'Admin Login';
-            }
+        function openModal(e) {
+            e.preventDefault();
+            roleField.value = 'admin';
+            modalTitle.textContent = 'Admin Login';
+            modal.classList.add('active');
         }
 
-        function openModal(role) {
-            return function (e) {
-                e.preventDefault();
-                setActiveRole(role);
-                modal.classList.add('active');
-            };
+        function openMasterModal(e) {
+            e.preventDefault();
+            roleField.value = 'master';
+            modalTitle.textContent = 'Master Login';
+            modal.classList.add('active');
         }
 
         function closeModal() {
             modal.classList.remove('active');
         }
 
-        openBtn1.addEventListener('click', openModal('admin'));   // Nav bar -> Admin Login
-        openBtn2.addEventListener('click', openModal('master'));  // Hero -> Master Login
+        openBtn1.addEventListener('click', openModal);
+        openBtn2.addEventListener('click', openModal);
+        openBtn3.addEventListener('click', openMasterModal);
+        openBtn4.addEventListener('click', openMasterModal);
         closeBtn.addEventListener('click', closeModal);
-
-        // Tapping the tabs INSIDE the modal also updates the heading
-        roleAdminInput.addEventListener('change', () => setActiveRole('admin'));
-        roleMasterInput.addEventListener('change', () => setActiveRole('master'));
 
         // Close when clicking outside the card
         modal.addEventListener('click', (e) => {

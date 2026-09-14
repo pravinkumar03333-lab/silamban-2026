@@ -1,105 +1,291 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <title>Admin Login | Silambam Class Management</title>
 
-    <title>Admin Login</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
+        body {
+            min-height: 100vh;
+            font-family: Arial, Helvetica, sans-serif;
+            background:
+                linear-gradient(rgba(10, 15, 25, 0.78), rgba(10, 15, 25, 0.88)),
+                url("{{ url_for('static', filename='silambam-hero.png') }}");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            padding: 20px;
+            color: white;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 430px;
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 24px;
+            padding: 40px 35px;
+
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+
+            box-shadow:
+                0 20px 50px rgba(0, 0, 0, 0.45),
+                inset 0 1px 1px rgba(255, 255, 255, 0.15);
+
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 55px;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            font-size: 30px;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.75);
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            text-align: left;
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        input {
+            width: 100%;
+            padding: 14px 16px;
+
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 12px;
+
+            background: rgba(255, 255, 255, 0.10);
+            color: white;
+
+            font-size: 15px;
+            outline: none;
+
+            transition: 0.25s ease;
+        }
+
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.55);
+        }
+
+        input:focus {
+            border-color: rgba(255, 255, 255, 0.65);
+            background: rgba(255, 255, 255, 0.16);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.08);
+        }
+
+        .login-btn {
+            width: 100%;
+            border: none;
+            border-radius: 12px;
+
+            padding: 14px 20px;
+            margin-top: 8px;
+
+            background: linear-gradient(135deg, #ff8a00, #ff5e00);
+            color: white;
+
+            font-size: 16px;
+            font-weight: 700;
+
+            cursor: pointer;
+            transition: 0.25s ease;
+
+            box-shadow: 0 8px 20px rgba(255, 94, 0, 0.30);
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(255, 94, 0, 0.40);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        .error {
+            background: rgba(220, 38, 38, 0.20);
+            border: 1px solid rgba(248, 113, 113, 0.45);
+            color: #fecaca;
+
+            padding: 12px 14px;
+            border-radius: 10px;
+
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .back-home {
+            display: inline-block;
+            margin-top: 25px;
+
+            color: rgba(255, 255, 255, 0.80);
+            text-decoration: none;
+
+            font-size: 14px;
+            transition: 0.2s ease;
+        }
+
+        .back-home:hover {
+            color: white;
+        }
+
+        .master-link {
+            display: block;
+            margin-top: 14px;
+
+            color: #ffd29a;
+            text-decoration: none;
+
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .master-link:hover {
+            color: white;
+        }
+
+        .security-note {
+            margin-top: 25px;
+            padding-top: 20px;
+
+            border-top: 1px solid rgba(255, 255, 255, 0.12);
+
+            color: rgba(255, 255, 255, 0.55);
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 480px) {
+            .login-card {
+                padding: 30px 22px;
+                border-radius: 20px;
+            }
+
+            .logo {
+                font-size: 45px;
+            }
+
+            h1 {
+                font-size: 25px;
+            }
+        }
+    </style>
 </head>
-
 
 <body>
 
-    <h1>🔐 Admin Login</h1>
+    <div class="login-container">
 
+        <div class="login-card">
 
-    {% if error %}
+            <div class="logo">🥋</div>
 
-        <p
-            style="
-                color: red;
-            "
-        >
-            {{ error }}
-        </p>
+            <h1>Admin Login</h1>
 
-    {% endif %}
+            <p class="subtitle">
+                Silambam Class Management System
+            </p>
 
+            {% if error %}
+                <div class="error">
+                    ⚠️ {{ error }}
+                </div>
+            {% endif %}
 
-    <form method="POST">
+            <form method="POST" action="{{ url_for('login') }}">
 
+                <div class="form-group">
+                    <label for="username">
+                        👤 Admin Username
+                    </label>
 
-        <label>
+                    <input
+                        type="text"
+                        id="username"
+                        name="username"
+                        placeholder="Enter admin username"
+                        autocomplete="username"
+                        required
+                        autofocus
+                    >
+                </div>
 
-            Username
+                <div class="form-group">
+                    <label for="password">
+                        🔐 Admin Password
+                    </label>
 
-        </label>
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        placeholder="Enter admin password"
+                        autocomplete="current-password"
+                        required
+                    >
+                </div>
 
-        <br>
+                <button type="submit" class="login-btn">
+                    🔓 Login as Admin
+                </button>
 
+            </form>
 
-        <input
-            type="text"
-            name="username"
-            placeholder="Admin username"
-            required
-        >
+            <a
+                href="{{ url_for('master_login') }}"
+                class="master-link"
+            >
+                🥋 Login as Master instead
+            </a>
 
+            <a
+                href="{{ url_for('index') }}"
+                class="back-home"
+            >
+                ← Back to Home
+            </a>
 
-        <br><br>
+            <div class="security-note">
+                🔒 Admin access is restricted to authorized academy administrators.
+            </div>
 
+        </div>
 
-        <label>
-
-            Password
-
-        </label>
-
-        <br>
-
-
-        <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            required
-        >
-
-
-        <br><br>
-
-
-        <button
-            type="submit"
-        >
-
-            Login
-
-        </button>
-
-
-    </form>
-
-
-    <br>
-
-
-    <a
-        href="{{ url_for('index') }}"
-    >
-
-        ← Back to Home
-
-    </a>
-
+    </div>
 
 </body>
-
 </html>

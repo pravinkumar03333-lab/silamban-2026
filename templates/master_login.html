@@ -1,106 +1,191 @@
 <!DOCTYPE html>
-
 <html lang="en">
 
 <head>
 
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <title>Master Login - Silambam</title>
 
-    <title>Master Login</title>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/liquid-glass.css') }}">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .login-card {
+            position: relative;
+            z-index: 5;
+            width: 90%;
+            max-width: 380px;
+            padding: 34px;
+            border-radius: 24px;
+
+            background: linear-gradient(
+                135deg,
+                rgba(255, 255, 255, 0.13),
+                rgba(255, 255, 255, 0.035)
+            );
+
+            backdrop-filter: blur(22px) saturate(150%);
+            -webkit-backdrop-filter: blur(22px) saturate(150%);
+
+            border: 1px solid rgba(255, 255, 255, 0.15);
+
+            box-shadow:
+                0 20px 55px rgba(0, 0, 0, 0.40),
+                inset 0 1px 0 rgba(255, 255, 255, 0.18);
+        }
+
+        .login-card h1 {
+            color: #ffd700;
+            font-size: 24px;
+            text-align: center;
+            margin-bottom: 6px;
+        }
+
+        .login-card .subtitle {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.55);
+            font-size: 13px;
+            margin-bottom: 24px;
+        }
+
+        .login-error {
+            background: rgba(255, 60, 60, 0.15);
+            border: 1px solid rgba(255, 80, 80, 0.5);
+            color: #ff8a8a;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 18px;
+            font-size: 13px;
+            text-align: center;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-group label {
+            display: block;
+            color: rgba(255, 255, 255, 0.65);
+            font-size: 13px;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 13px 14px;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: rgba(255, 215, 0, 0.5);
+        }
+
+        .login-btn {
+            width: 100%;
+            margin-top: 8px;
+            padding: 13px;
+            border: none;
+            border-radius: 25px;
+            background: #ffd700;
+            color: #111;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .login-btn:hover {
+            background: #e6c200;
+        }
+
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: rgba(255, 255, 255, 0.55);
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+        .back-link:hover {
+            color: #ffd700;
+        }
+    </style>
 
 </head>
 
-
 <body>
 
+<div class="liquid-background">
+    <div class="liquid liquid-one"></div>
+    <div class="liquid liquid-two"></div>
+    <div class="liquid liquid-three"></div>
+    <div class="liquid liquid-four"></div>
+</div>
+
+<div class="grain"></div>
+
+
+<div class="login-card">
 
     <h1>🥋 Master Login</h1>
 
+    <p class="subtitle">
+        Sign in with your master account
+    </p>
 
     {% if error %}
 
-        <p
-            style="
-                color: red;
-            "
-        >
-
-            {{ error }}
-
-        </p>
+    <div class="login-error">
+        {{ error }}
+    </div>
 
     {% endif %}
 
+    <form method="POST" action="{{ url_for('master_login') }}">
 
-    <form method="POST">
+        <div class="input-group">
+            <label>Username</label>
+            <input type="text" name="username" placeholder="Master username" required>
+        </div>
 
+        <div class="input-group">
+            <label>Password</label>
+            <input type="password" name="password" placeholder="Password" required>
+        </div>
 
-        <label>
-
-            Master Username
-
-        </label>
-
-        <br>
-
-
-        <input
-            type="text"
-            name="username"
-            required
-        >
-
-
-        <br><br>
-
-
-        <label>
-
-            Password
-
-        </label>
-
-        <br>
-
-
-        <input
-            type="password"
-            name="password"
-            required
-        >
-
-
-        <br><br>
-
-
-        <button
-            type="submit"
-        >
-
+        <button type="submit" class="login-btn">
             Login
-
         </button>
-
 
     </form>
 
-
-    <br>
-
-
-    <a
-        href="{{ url_for('index') }}"
-    >
-
+    <a href="{{ url_for('home') }}" class="back-link">
         ← Back to Home
-
     </a>
 
+</div>
 
 </body>
 

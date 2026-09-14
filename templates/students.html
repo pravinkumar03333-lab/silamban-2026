@@ -5,282 +5,953 @@
 
     <meta charset="UTF-8">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-    <title>Students - Silambam</title>
+    <title>
+        Student Management - Silambam
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/liquid-glass.css') }}"
+    >
 
     <style>
 
-        body {
-            margin: 0;
-
-            font-family: Arial, sans-serif;
-
-            background: #f4f7fb;
+        * {
+            box-sizing: border-box;
         }
 
-        header {
-            background: linear-gradient(
-                90deg,
-                #174ea6,
-                #08a9e6
-            );
+        body {
+
+            margin: 0;
+
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+
+            min-height: 100vh;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #08111f,
+                    #13233b,
+                    #08111f
+                );
 
             color: white;
 
-            padding: 20px 8%;
+            padding-bottom: 50px;
+        }
+
+
+        /* =========================================
+           HEADER
+        ========================================== */
+
+        header {
+
+            background:
+                rgba(
+                    0,
+                    0,
+                    0,
+                    0.55
+                );
+
+            border-bottom:
+                1px solid
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.14
+                );
+
+            padding:
+                18px 30px;
 
             display: flex;
 
-            justify-content: space-between;
+            justify-content:
+                space-between;
 
-            align-items: center;
+            align-items:
+                center;
+
+            gap: 20px;
+
+            position: sticky;
+
+            top: 0;
+
+            z-index: 100;
         }
+
 
         .logo {
-            font-size: 24px;
+
+            font-size: 21px;
 
             font-weight: bold;
+
+            color: #ffb000;
         }
 
-        header a {
-            background: white;
 
-            color: #174ea6;
+        .nav {
 
-            text-decoration: none;
+            display: flex;
 
-            padding: 10px 20px;
+            gap: 8px;
 
-            border-radius: 20px;
+            flex-wrap: wrap;
 
-            font-weight: bold;
+            justify-content: flex-end;
         }
 
-        .container {
-            max-width: 1100px;
 
-            margin: 40px auto;
-
-            padding: 20px;
-        }
-
-        .back {
-            display: inline-block;
-
-            margin-bottom: 20px;
-
-            text-decoration: none;
-
-            color: #174ea6;
-
-            font-weight: bold;
-        }
-
-        h1 {
-            text-align: center;
-
-            color: #174ea6;
-
-            margin-bottom: 30px;
-        }
-
-        .form-box {
-            background: white;
-
-            padding: 30px;
-
-            border-radius: 15px;
-
-            box-shadow:
-                0 5px 20px
-                rgba(0,0,0,0.10);
-
-            margin-bottom: 40px;
-        }
-
-        .form-box h2 {
-            color: #174ea6;
-
-            margin-top: 0;
-        }
-
-        .form-grid {
-            display: grid;
-
-            grid-template-columns:
-                repeat(2, 1fr);
-
-            gap: 15px;
-        }
-
-        input,
-        select {
-            width: 100%;
-
-            padding: 13px;
-
-            box-sizing: border-box;
-
-            border: 1px solid #ddd;
-
-            border-radius: 8px;
-
-            font-size: 15px;
-
-            color: #222;
-
-            background: white;
-        }
-
-        .add-button {
-            margin-top: 20px;
-
-            padding: 13px 30px;
-
-            border: none;
-
-            border-radius: 25px;
-
-            background: #08a9e6;
+        .nav a {
 
             color: white;
 
-            font-size: 16px;
+            text-decoration: none;
+
+            padding:
+                9px 13px;
+
+            border-radius: 10px;
+
+            background:
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.08
+                );
+
+            border:
+                1px solid
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.12
+                );
+
+            font-size: 13px;
+        }
+
+
+        .nav a:hover {
+
+            background:
+                rgba(
+                    255,
+                    176,
+                    0,
+                    0.18
+                );
+        }
+
+
+        /* =========================================
+           CONTAINER
+        ========================================== */
+
+        .container {
+
+            width: 95%;
+
+            max-width: 1400px;
+
+            margin:
+                35px auto;
+        }
+
+
+        .back {
+
+            display: inline-block;
+
+            margin-bottom: 18px;
+
+            color: #ffbd3b;
+
+            text-decoration: none;
+
+            font-weight: bold;
+        }
+
+
+        h1 {
+
+            margin:
+                0 0 25px;
+
+            font-size: 32px;
+        }
+
+
+        h2 {
+
+            margin-top: 0;
+
+            color: #ffb000;
+        }
+
+
+        /* =========================================
+           MESSAGE
+        ========================================== */
+
+        .message {
+
+            padding:
+                13px 16px;
+
+            border-radius: 10px;
+
+            margin-bottom: 18px;
+
+            background:
+                rgba(
+                    34,
+                    197,
+                    94,
+                    0.15
+                );
+
+            border:
+                1px solid
+                rgba(
+                    34,
+                    197,
+                    94,
+                    0.30
+                );
+        }
+
+
+        /* =========================================
+           BOX
+        ========================================== */
+
+        .box {
+
+            background:
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.08
+                );
+
+            border:
+                1px solid
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.15
+                );
+
+            border-radius: 20px;
+
+            padding: 25px;
+
+            margin-bottom: 25px;
+
+            backdrop-filter:
+                blur(15px);
+
+            -webkit-backdrop-filter:
+                blur(15px);
+
+            box-shadow:
+                0 15px 40px
+                rgba(
+                    0,
+                    0,
+                    0,
+                    0.25
+                );
+        }
+
+
+        /* =========================================
+           FORM
+        ========================================== */
+
+        .form-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(
+                    2,
+                    minmax(
+                        0,
+                        1fr
+                    )
+                );
+
+            gap: 17px;
+        }
+
+
+        .form-group {
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 7px;
+        }
+
+
+        label {
+
+            font-size: 14px;
+
+            font-weight: bold;
+
+            color:
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.90
+                );
+        }
+
+
+        input,
+        select {
+
+            width: 100%;
+
+            padding:
+                13px 14px;
+
+            border:
+                1px solid
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.18
+                );
+
+            border-radius: 10px;
+
+            background:
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.09
+                );
+
+            color: white;
+
+            outline: none;
+
+            font-size: 14px;
+        }
+
+
+        input::placeholder {
+
+            color:
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.55
+                );
+        }
+
+
+        input:focus,
+        select:focus {
+
+            border-color:
+                #ffb000;
+
+            background:
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.14
+                );
+        }
+
+
+        select option {
+
+            background: #172033;
+
+            color: white;
+        }
+
+
+        .add-button {
+
+            margin-top: 20px;
+
+            padding:
+                13px 25px;
+
+            border: none;
+
+            border-radius: 11px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #ffb000,
+                    #ff6500
+                );
+
+            color: white;
+
+            font-size: 15px;
 
             font-weight: bold;
 
             cursor: pointer;
         }
 
+
         .add-button:hover {
-            background: #174ea6;
-        }
 
-        .table-box {
-            background: white;
-
-            padding: 20px;
-
-            border-radius: 15px;
+            transform:
+                translateY(-1px);
 
             box-shadow:
-                0 5px 20px
-                rgba(0,0,0,0.10);
+                0 8px 20px
+                rgba(
+                    255,
+                    106,
+                    0,
+                    0.30
+                );
+        }
+
+
+        /* =========================================
+           TABLE
+        ========================================== */
+
+        .table-wrapper {
 
             overflow-x: auto;
         }
 
+
         table {
+
             width: 100%;
 
-            border-collapse: collapse;
+            min-width: 1100px;
+
+            border-collapse:
+                collapse;
         }
 
+
         th {
-            background: #174ea6;
+
+            background:
+                rgba(
+                    255,
+                    176,
+                    0,
+                    0.18
+                );
+
+            color: #ffbd3b;
+
+            padding:
+                14px 10px;
+
+            border-bottom:
+                1px solid
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.15
+                );
+
+            font-size: 13px;
+        }
+
+
+        td {
+
+            padding:
+                13px 10px;
+
+            text-align: center;
+
+            border-bottom:
+                1px solid
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.08
+                );
+
+            font-size: 13px;
+
+            color:
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.88
+                );
+        }
+
+
+        tr:hover {
+
+            background:
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.05
+                );
+        }
+
+
+        /* =========================================
+           ACTION BUTTONS
+        ========================================== */
+
+        .actions {
+
+            display: flex;
+
+            justify-content:
+                center;
+
+            align-items:
+                center;
+
+            gap: 7px;
+
+            flex-wrap: wrap;
+        }
+
+
+        .edit-button,
+        .delete-button {
+
+            border: none;
+
+            border-radius: 8px;
+
+            padding:
+                8px 12px;
 
             color: white;
 
-            padding: 14px;
-        }
-
-        td {
-            padding: 13px;
-
-            text-align: center;
-
-            border-bottom: 1px solid #eee;
+            font-size: 12px;
 
             font-weight: bold;
 
-            font-size: 15px;
+            cursor: pointer;
 
-            color: #174ea6 !important;
+            white-space: nowrap;
         }
 
-        tbody tr:nth-child(even) {
-            background: #f4f9ff;
+
+        .edit-button {
+
+            background:
+                #2563eb;
         }
 
-        tr:hover {
-            background: #f1f8ff;
+
+        .edit-button:hover {
+
+            background:
+                #1d4ed8;
         }
+
+
+        .delete-button {
+
+            background:
+                #dc2626;
+        }
+
+
+        .delete-button:hover {
+
+            background:
+                #b91c1c;
+        }
+
 
         .empty {
-            color: #777;
 
-            padding: 25px;
-        }
-
-        footer {
             text-align: center;
 
-            color: #777;
+            padding: 35px;
 
-            margin-top: 50px;
-
-            padding: 20px;
+            color:
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.60
+                );
         }
 
-        @media(max-width: 700px) {
+
+        /* =========================================
+           EDIT MODAL
+        ========================================== */
+
+        .modal {
+
+            display: none;
+
+            position: fixed;
+
+            inset: 0;
+
+            z-index: 1000;
+
+            background:
+                rgba(
+                    0,
+                    0,
+                    0,
+                    0.75
+                );
+
+            padding: 20px;
+
+            overflow-y: auto;
+        }
+
+
+        .modal.active {
+
+            display: flex;
+
+            justify-content:
+                center;
+
+            align-items:
+                center;
+        }
+
+
+        .modal-card {
+
+            width: 100%;
+
+            max-width: 760px;
+
+            background:
+                #172033;
+
+            border:
+                1px solid
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.18
+                );
+
+            border-radius: 20px;
+
+            padding: 28px;
+
+            box-shadow:
+                0 25px 70px
+                rgba(
+                    0,
+                    0,
+                    0,
+                    0.60
+                );
+        }
+
+
+        .modal-header {
+
+            display: flex;
+
+            justify-content:
+                space-between;
+
+            align-items:
+                center;
+
+            margin-bottom: 22px;
+        }
+
+
+        .modal-header h2 {
+
+            margin: 0;
+        }
+
+
+        .close-button {
+
+            width: 36px;
+
+            height: 36px;
+
+            border: none;
+
+            border-radius: 50%;
+
+            background:
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.10
+                );
+
+            color: white;
+
+            font-size: 22px;
+
+            cursor: pointer;
+        }
+
+
+        .close-button:hover {
+
+            background:
+                #dc2626;
+        }
+
+
+        .save-button {
+
+            margin-top: 20px;
+
+            padding:
+                13px 24px;
+
+            border: none;
+
+            border-radius: 11px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #16a085,
+                    #0f766e
+                );
+
+            color: white;
+
+            font-size: 15px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+        }
+
+
+        .cancel-button {
+
+            margin-top: 20px;
+
+            margin-left: 8px;
+
+            padding:
+                13px 24px;
+
+            border: none;
+
+            border-radius: 11px;
+
+            background:
+                #4b5563;
+
+            color: white;
+
+            font-size: 15px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+        }
+
+
+        /* =========================================
+           RESPONSIVE
+        ========================================== */
+
+        @media (max-width: 750px) {
+
+            header {
+
+                flex-direction: column;
+
+                align-items:
+                    flex-start;
+            }
+
+
+            .nav {
+
+                justify-content:
+                    flex-start;
+            }
+
 
             .form-grid {
-                grid-template-columns: 1fr;
+
+                grid-template-columns:
+                    1fr;
             }
 
-            th,
-            td {
-                font-size: 12px;
 
-                padding: 8px;
+            h1 {
+
+                font-size: 26px;
             }
 
+
+            .box {
+
+                padding: 18px;
+            }
         }
 
     </style>
-<link rel="stylesheet"
-      href="{{ url_for('static', filename='css/liquid-glass.css') }}">
+
 </head>
 
 
 <body>
 
-<div class="liquid-background">
 
-    <div class="liquid liquid-one"></div>
-    <div class="liquid liquid-two"></div>
-    <div class="liquid liquid-three"></div>
-    <div class="liquid liquid-four"></div>
-
-</div>
-
-<div class="grain"></div>
-
-<div class="mouse-glow"
-     id="mouseGlow"></div>
-
+<!-- =========================================
+     HEADER
+========================================== -->
 
 <header>
 
     <div class="logo">
-        🥋 SILAMBAM ADMIN
+
+        {% if session.get("user_role") == "master" %}
+
+            🥋 SILAMBAM MASTER
+
+        {% else %}
+
+            🥋 SILAMBAM ADMIN
+
+        {% endif %}
+
     </div>
 
-    <a href="/dashboard">
-        Dashboard
-    </a>
+
+    <div class="nav">
+
+        {% if session.get("user_role") == "master" %}
+
+            <a href="{{ url_for('master_dashboard') }}">
+                📊 Dashboard
+            </a>
+
+        {% else %}
+
+            <a href="{{ url_for('dashboard') }}">
+                📊 Dashboard
+            </a>
+
+        {% endif %}
+
+
+        <a href="{{ url_for('students_page') }}">
+            👨‍🎓 Students
+        </a>
+
+
+        <a href="{{ url_for('attendance_page') }}">
+            📅 Attendance
+        </a>
+
+
+        <a href="{{ url_for('fees_page') }}">
+            💰 Fees
+        </a>
+
+
+        <a href="{{ url_for('achievements_page') }}">
+            🏆 Achievements
+        </a>
+
+
+        {% if session.get("user_role") == "admin" %}
+
+            <a href="{{ url_for('masters_page') }}">
+                🥋 Masters
+            </a>
+
+        {% endif %}
+
+
+        <a href="{{ url_for('logout') }}">
+            🚪 Logout
+        </a>
+
+    </div>
 
 </header>
 
 
+<!-- =========================================
+     MAIN
+========================================== -->
+
 <div class="container">
 
 
-    <a href="/dashboard" class="back">
-        ← Back to Dashboard
-    </a>
+    {% if session.get("user_role") == "master" %}
+
+        <a
+            href="{{ url_for('master_dashboard') }}"
+            class="back"
+        >
+            ← Back to Master Dashboard
+        </a>
+
+    {% else %}
+
+        <a
+            href="{{ url_for('dashboard') }}"
+            class="back"
+        >
+            ← Back to Admin Dashboard
+        </a>
+
+    {% endif %}
 
 
     <h1>
@@ -288,103 +959,264 @@
     </h1>
 
 
-    <!-- ADD STUDENT -->
+    <!-- =====================================
+         FLASH MESSAGES
+    ====================================== -->
 
-    <div class="form-box">
+    {% with messages =
+        get_flashed_messages(
+            with_categories=true
+        )
+    %}
+
+        {% if messages %}
+
+            {% for category, message in messages %}
+
+                <div class="message">
+
+                    {% if category == "error" %}
+
+                        ⚠️
+
+                    {% else %}
+
+                        ✅
+
+                    {% endif %}
+
+                    {{ message }}
+
+                </div>
+
+            {% endfor %}
+
+        {% endif %}
+
+    {% endwith %}
+
+
+    <!-- =====================================
+         ADD STUDENT
+    ====================================== -->
+
+    <div class="box">
 
         <h2>
             ➕ Add New Student
         </h2>
 
 
-        <form method="POST"
-              action="/add_student">
+        <form
+            method="POST"
+            action="{{ url_for('add_student') }}"
+        >
 
 
             <div class="form-grid">
 
 
-                <input
-                    type="text"
-                    name="name"
-                    placeholder="Student Name"
-                    required>
+                <!-- NAME -->
+
+                <div class="form-group">
+
+                    <label for="name">
+                        👤 Student Name *
+                    </label>
+
+                    <input
+                        type="text"
+                        id="name"
+                        name="name"
+                        placeholder="Enter student name"
+                        required
+                    >
+
+                </div>
 
 
-                <input
-                    type="number"
-                    name="age"
-                    placeholder="Age"
-                    min="5"
-                    max="100"
-                    required>
+                <!-- AGE -->
+
+                <div class="form-group">
+
+                    <label for="age">
+                        🎂 Age *
+                    </label>
+
+                    <input
+                        type="number"
+                        id="age"
+                        name="age"
+                        min="1"
+                        max="100"
+                        placeholder="Enter age"
+                        required
+                    >
+
+                </div>
 
 
-                <input
-                    type="tel"
-                    name="phone"
-                    placeholder="Phone Number"
-                    required>
+                <!-- PHONE -->
+
+                <div class="form-group">
+
+                    <label for="phone">
+                        📱 Phone *
+                    </label>
+
+                    <input
+                        type="tel"
+                        id="phone"
+                        name="phone"
+                        placeholder="Enter phone number"
+                        required
+                    >
+
+                </div>
 
 
-                <select
-                    name="belt"
-                    required>
+                <!-- BELT -->
 
-                    <option value="">
-                        Select Belt Level
-                    </option>
+                <div class="form-group">
 
-                    <option value="Beginner">
-                        Beginner
-                    </option>
+                    <label for="belt">
+                        🥋 Belt *
+                    </label>
 
-                    <option value="Yellow Belt">
-                        Yellow Belt
-                    </option>
+                    <select
+                        id="belt"
+                        name="belt"
+                        required
+                    >
 
-                    <option value="Green Belt">
-                        Green Belt
-                    </option>
+                        <option value="">
+                            Select Belt
+                        </option>
 
-                    <option value="Blue Belt">
-                        Blue Belt
-                    </option>
+                        <option value="Beginner">
+                            Beginner
+                        </option>
 
-                    <option value="Red Belt">
-                        Red Belt
-                    </option>
+                        <option value="Yellow Belt">
+                            Yellow Belt
+                        </option>
 
-                    <option value="Black Belt">
-                        Black Belt
-                    </option>
+                        <option value="Green Belt">
+                            Green Belt
+                        </option>
 
-                </select>
+                        <option value="Blue Belt">
+                            Blue Belt
+                        </option>
+
+                        <option value="Red Belt">
+                            Red Belt
+                        </option>
+
+                        <option value="Black Belt">
+                            Black Belt
+                        </option>
+
+                    </select>
+
+                </div>
 
 
-                <input
-                    type="date"
-                    name="join_date"
-                    required>
+                <!-- JOIN DATE -->
+
+                <div class="form-group">
+
+                    <label for="join_date">
+                        📅 Join Date *
+                    </label>
+
+                    <input
+                        type="date"
+                        id="join_date"
+                        name="join_date"
+                        required
+                    >
+
+                </div>
 
 
-                {% if session.get('user_role') == 'admin' %}
+                <!-- LOCATION -->
 
-                <select name="master_id">
+                <div class="form-group">
 
-                    <option value="">
-                        No Master Assigned
-                    </option>
+                    <label for="location">
+                        📍 Location
+                    </label>
 
-                    {% for master in masters %}
+                    <input
+                        type="text"
+                        id="location"
+                        name="location"
+                        placeholder="Training location"
+                    >
 
-                    <option value="{{ master.id }}">
-                        {{ master.name }}
-                    </option>
+                </div>
 
-                    {% endfor %}
 
-                </select>
+                <!-- BATCH -->
+
+                <div class="form-group">
+
+                    <label for="batch">
+                        🕐 Batch
+                    </label>
+
+                    <input
+                        type="text"
+                        id="batch"
+                        name="batch"
+                        placeholder="Example: Morning Batch"
+                    >
+
+                </div>
+
+
+                <!-- MASTER -->
+
+                {% if session.get("user_role") == "admin" %}
+
+                    <div class="form-group">
+
+                        <label for="master_id">
+                            🥋 Assign Master
+                        </label>
+
+                        <select
+                            id="master_id"
+                            name="master_id"
+                        >
+
+                            <option value="">
+                                No Master Assigned
+                            </option>
+
+
+                            {% for master in masters %}
+
+                                <option
+                                    value="{{ master.id }}"
+                                >
+
+                                    {{ master.name }}
+
+                                    {% if master.location %}
+
+                                        - {{ master.location }}
+
+                                    {% endif %}
+
+                                </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
 
                 {% endif %}
 
@@ -394,10 +1226,9 @@
 
             <button
                 type="submit"
-                class="add-button">
-
+                class="add-button"
+            >
                 ➕ Add Student
-
             </button>
 
 
@@ -406,91 +1237,234 @@
     </div>
 
 
-    <!-- STUDENT LIST -->
+    <!-- =====================================
+         STUDENT LIST
+    ====================================== -->
 
-    <div class="table-box">
+    <div class="box">
 
         <h2>
             📋 Student List
         </h2>
 
 
-        <table>
-
-            <thead>
-
-                <tr>
-
-                    <th>No.</th>
-
-                    <th>Name</th>
-
-                    <th>Age</th>
-
-                    <th>Phone</th>
-
-                    <th>Belt</th>
-
-                    <th>Join Date</th>
-
-                </tr>
-
-            </thead>
+        {% if students %}
 
 
-            <tbody>
+            <div class="table-wrapper">
 
 
-                {% for student in students %}
-
-                <tr>
-
-                    <td>
-                        {{ loop.index }}
-                    </td>
-
-                    <td>
-                        {{ student.name }}
-                    </td>
-
-                    <td>
-                        {{ student.age }}
-                    </td>
-
-                    <td>
-                        {{ student.phone }}
-                    </td>
-
-                    <td>
-                        {{ student.belt }}
-                    </td>
-
-                    <td>
-                        {{ student.join_date }}
-                    </td>
-
-                </tr>
-
-                {% else %}
-
-                <tr>
-
-                    <td
-                        colspan="6"
-                        class="empty">
-
-                        No students added yet.
-
-                    </td>
-
-                </tr>
-
-                {% endfor %}
+                <table>
 
 
-            </tbody>
+                    <thead>
 
-        </table>
+                        <tr>
+
+                            <th>
+                                No.
+                            </th>
+
+                            <th>
+                                Name
+                            </th>
+
+                            <th>
+                                Age
+                            </th>
+
+                            <th>
+                                Phone
+                            </th>
+
+                            <th>
+                                Belt
+                            </th>
+
+                            <th>
+                                Join Date
+                            </th>
+
+                            <th>
+                                Location
+                            </th>
+
+                            <th>
+                                Batch
+                            </th>
+
+                            <th>
+                                Master
+                            </th>
+
+                            <th>
+                                Actions
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+
+                        {% for student in students %}
+
+
+                            <tr>
+
+
+                                <td>
+                                    {{ loop.index }}
+                                </td>
+
+
+                                <td>
+                                    <strong>
+                                        {{ student.name }}
+                                    </strong>
+                                </td>
+
+
+                                <td>
+                                    {{ student.age }}
+                                </td>
+
+
+                                <td>
+                                    {{ student.phone }}
+                                </td>
+
+
+                                <td>
+                                    🥋 {{ student.belt }}
+                                </td>
+
+
+                                <td>
+                                    {{ student.join_date }}
+                                </td>
+
+
+                                <td>
+                                    {{ student.location or "-" }}
+                                </td>
+
+
+                                <td>
+                                    {{ student.batch or "-" }}
+                                </td>
+
+
+                                <td>
+
+                                    {% if student.master %}
+
+                                        {{ student.master.name }}
+
+                                    {% else %}
+
+                                        Not Assigned
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <!-- ACTIONS -->
+
+                                <td>
+
+                                    <div class="actions">
+
+
+                                        <!-- EDIT BUTTON -->
+
+                                        <button
+                                            type="button"
+                                            class="edit-button"
+                                            onclick='openEditModal(
+                                                {{ student.id }},
+                                                {{ student.name|tojson }},
+                                                {{ student.age|tojson }},
+                                                {{ student.phone|tojson }},
+                                                {{ student.belt|tojson }},
+                                                {{ student.join_date|tojson }},
+                                                {{ (student.location or "")|tojson }},
+                                                {{ (student.batch or "")|tojson }},
+                                                {{ (student.master_id or "")|tojson }}
+                                            )'
+                                        >
+
+                                            ✏️ Edit
+
+                                        </button>
+
+
+                                        <!-- DELETE FORM -->
+
+                                        <form
+                                            method="POST"
+                                            action="{{ url_for(
+                                                'delete_student',
+                                                student_id=student.id
+                                            ) }}"
+                                            onsubmit='return confirmDelete(
+                                                {{ student.name|tojson }}
+                                            );'
+                                            style="display:inline;"
+                                        >
+
+                                            <button
+                                                type="submit"
+                                                class="delete-button"
+                                            >
+
+                                                🗑️ Delete
+
+                                            </button>
+
+                                        </form>
+
+
+                                    </div>
+
+                                </td>
+
+
+                            </tr>
+
+
+                        {% endfor %}
+
+
+                    </tbody>
+
+
+                </table>
+
+
+            </div>
+
+
+        {% else %}
+
+
+            <div class="empty">
+
+                👨‍🎓
+
+                <br>
+                <br>
+
+                No students added yet.
+
+            </div>
+
+
+        {% endif %}
+
 
     </div>
 
@@ -498,14 +1472,436 @@
 </div>
 
 
-<footer>
+<!-- =========================================
+     EDIT STUDENT MODAL
+========================================== -->
 
-    © 2026 Silambam Class Management System
-    | All Rights Reserved
+<div
+    class="modal"
+    id="editModal"
+>
 
-</footer>
 
-<script src="{{ url_for('static', filename='js/liquid-glass.js') }}"></script>
+    <div class="modal-card">
+
+
+        <div class="modal-header">
+
+            <h2>
+                ✏️ Edit Student
+            </h2>
+
+
+            <button
+                type="button"
+                class="close-button"
+                onclick="closeEditModal()"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <form
+            method="POST"
+            id="editStudentForm"
+        >
+
+
+            <div class="form-grid">
+
+
+                <!-- NAME -->
+
+                <div class="form-group">
+
+                    <label for="edit_name">
+                        👤 Student Name *
+                    </label>
+
+                    <input
+                        type="text"
+                        id="edit_name"
+                        name="name"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- AGE -->
+
+                <div class="form-group">
+
+                    <label for="edit_age">
+                        🎂 Age *
+                    </label>
+
+                    <input
+                        type="number"
+                        id="edit_age"
+                        name="age"
+                        min="1"
+                        max="100"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- PHONE -->
+
+                <div class="form-group">
+
+                    <label for="edit_phone">
+                        📱 Phone *
+                    </label>
+
+                    <input
+                        type="tel"
+                        id="edit_phone"
+                        name="phone"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- BELT -->
+
+                <div class="form-group">
+
+                    <label for="edit_belt">
+                        🥋 Belt *
+                    </label>
+
+                    <select
+                        id="edit_belt"
+                        name="belt"
+                        required
+                    >
+
+                        <option value="">
+                            Select Belt
+                        </option>
+
+                        <option value="Beginner">
+                            Beginner
+                        </option>
+
+                        <option value="Yellow Belt">
+                            Yellow Belt
+                        </option>
+
+                        <option value="Green Belt">
+                            Green Belt
+                        </option>
+
+                        <option value="Blue Belt">
+                            Blue Belt
+                        </option>
+
+                        <option value="Red Belt">
+                            Red Belt
+                        </option>
+
+                        <option value="Black Belt">
+                            Black Belt
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- JOIN DATE -->
+
+                <div class="form-group">
+
+                    <label for="edit_join_date">
+                        📅 Join Date *
+                    </label>
+
+                    <input
+                        type="date"
+                        id="edit_join_date"
+                        name="join_date"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- LOCATION -->
+
+                <div class="form-group">
+
+                    <label for="edit_location">
+                        📍 Location
+                    </label>
+
+                    <input
+                        type="text"
+                        id="edit_location"
+                        name="location"
+                    >
+
+                </div>
+
+
+                <!-- BATCH -->
+
+                <div class="form-group">
+
+                    <label for="edit_batch">
+                        🕐 Batch
+                    </label>
+
+                    <input
+                        type="text"
+                        id="edit_batch"
+                        name="batch"
+                    >
+
+                </div>
+
+
+                <!-- MASTER - ADMIN ONLY -->
+
+                {% if session.get("user_role") == "admin" %}
+
+                    <div class="form-group">
+
+                        <label for="edit_master_id">
+                            🥋 Assign Master
+                        </label>
+
+                        <select
+                            id="edit_master_id"
+                            name="master_id"
+                        >
+
+                            <option value="">
+                                No Master Assigned
+                            </option>
+
+
+                            {% for master in masters %}
+
+                                <option
+                                    value="{{ master.id }}"
+                                >
+                                    {{ master.name }}
+                                </option>
+
+                            {% endfor %}
+
+
+                        </select>
+
+                    </div>
+
+                {% endif %}
+
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="save-button"
+            >
+                💾 Save Changes
+            </button>
+
+
+            <button
+                type="button"
+                class="cancel-button"
+                onclick="closeEditModal()"
+            >
+                Cancel
+            </button>
+
+
+        </form>
+
+
+    </div>
+
+
+</div>
+
+
+<!-- =========================================
+     JAVASCRIPT
+========================================== -->
+
+<script>
+
+
+function openEditModal(
+    id,
+    name,
+    age,
+    phone,
+    belt,
+    joinDate,
+    location,
+    batch,
+    masterId
+) {
+
+
+    const form =
+        document.getElementById(
+            "editStudentForm"
+        );
+
+
+    form.action =
+        "/edit_student/" + id;
+
+
+    document.getElementById(
+        "edit_name"
+    ).value = name;
+
+
+    document.getElementById(
+        "edit_age"
+    ).value = age;
+
+
+    document.getElementById(
+        "edit_phone"
+    ).value = phone;
+
+
+    document.getElementById(
+        "edit_belt"
+    ).value = belt;
+
+
+    document.getElementById(
+        "edit_join_date"
+    ).value = joinDate;
+
+
+    document.getElementById(
+        "edit_location"
+    ).value = location;
+
+
+    document.getElementById(
+        "edit_batch"
+    ).value = batch;
+
+
+    const masterField =
+        document.getElementById(
+            "edit_master_id"
+        );
+
+
+    if (masterField) {
+
+        masterField.value =
+            masterId || "";
+
+    }
+
+
+    document.getElementById(
+        "editModal"
+    ).classList.add(
+        "active"
+    );
+
+
+}
+
+
+function closeEditModal() {
+
+
+    document.getElementById(
+        "editModal"
+    ).classList.remove(
+        "active"
+    );
+
+
+}
+
+
+function confirmDelete(name) {
+
+
+    return confirm(
+
+        "Are you sure you want to delete " +
+        name +
+        "?\n\n" +
+
+        "The student's attendance, fees " +
+        "and achievements will also be deleted."
+
+    );
+
+
+}
+
+
+/* Close modal by clicking outside */
+
+document.getElementById(
+    "editModal"
+).addEventListener(
+    "click",
+    function(event) {
+
+        if (
+            event.target === this
+        ) {
+
+            closeEditModal();
+
+        }
+
+    }
+);
+
+
+/* Close modal with Escape */
+
+document.addEventListener(
+    "keydown",
+    function(event) {
+
+        if (
+            event.key === "Escape"
+        ) {
+
+            closeEditModal();
+
+        }
+
+    }
+);
+
+
+</script>
+
+
+<script
+    src="{{ url_for(
+        'static',
+        filename='js/liquid-glass.js'
+    ) }}"
+></script>
+
 
 </body>
 

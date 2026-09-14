@@ -1,9 +1,9 @@
 import os
-import secrets
 
-from dotenv import load_dotenv
 from datetime import date
 from functools import wraps
+
+from dotenv import load_dotenv
 
 from flask import (
     Flask,
@@ -31,17 +31,19 @@ load_dotenv()
 
 
 # =========================================================
-# APP CONFIGURATION
+# APPLICATION
 # =========================================================
 
 app = Flask(__name__)
 
-# A brand-new random key is generated every time the app starts.
-# This intentionally invalidates every previously issued session
-# cookie, so everyone (admin and masters) must log in again after
-# any server restart. Set SECRET_KEY in .env instead if you ever
-# want sessions to survive a restart.
-app.config["SECRET_KEY"] = secrets.token_hex(32)
+
+# Use the SECRET_KEY from .env.
+# A fallback is provided for local testing.
+app.config["SECRET_KEY"] = os.environ.get(
+    "SECRET_KEY",
+    "local-development-secret-change-this"
+)
+
 
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
@@ -52,9 +54,14 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 database_url = os.environ.get("DATABASE_URL")
 
+
 if database_url:
 
+    # Render/Postgres sometimes provides postgres://
+    # SQLAlchemy expects postgresql://
+
     if database_url.startswith("postgres://"):
+
         database_url = database_url.replace(
             "postgres://",
             "postgresql://",
@@ -64,6 +71,8 @@ if database_url:
     app.config["SQLALCHEMY_DATABASE_URI"] = database_url
 
 else:
+
+    # Local development database
 
     app.config["SQLALCHEMY_DATABASE_URI"] = (
         "sqlite:///silambam.db"
@@ -324,7 +333,7 @@ class Achievement(db.Model):
 
 
 # =========================================================
-# CURRENT ADMIN CHECK
+# USER / ROLE HELPERS
 # =========================================================
 
 def is_admin():
@@ -335,10 +344,6 @@ def is_admin():
     )
 
 
-# =========================================================
-# CURRENT MASTER CHECK
-# =========================================================
-
 def is_master():
 
     return (
@@ -348,13 +353,10 @@ def is_master():
     )
 
 
-# =========================================================
-# CURRENT MASTER ID
-# =========================================================
-
 def current_master_id():
 
     if is_master():
+
         return session.get("master_id")
 
     return None
@@ -483,8 +485,22 @@ def master_required(function):
 # HOME
 # =========================================================
 
-@app.route("/")
-def home():
+# Both endpoint names are supported.
+# This prevents old templates using url_for("home")
+# and newer templates using url_for("index")
+# from causing BuildError.
+
+@app.route(
+    "/",
+    endpoint="home"
+)
+
+@app.route(
+    "/",
+    endpoint="index"
+)
+
+def index():
 
     return render_template(
         "index.html"
@@ -499,6 +515,7 @@ def home():
     "/login",
     methods=["GET", "POST"]
 )
+
 def login():
 
     if request.method == "GET":
@@ -573,13 +590,14 @@ def login():
 
 
 # =========================================================
-# SEPARATE MASTER LOGIN
+# MASTER LOGIN
 # =========================================================
 
 @app.route(
     "/master-login",
     methods=["GET", "POST"]
 )
+
 def master_login():
 
     if request.method == "GET":
@@ -660,6 +678,7 @@ def master_login():
 # =========================================================
 
 @app.route("/logout")
+
 def logout():
 
     session.clear()
@@ -670,7 +689,7 @@ def logout():
     )
 
     return redirect(
-        url_for("home")
+        url_for("index")
     )
 
 
@@ -679,7 +698,9 @@ def logout():
 # =========================================================
 
 @app.route("/dashboard")
+
 @login_required
+
 def dashboard():
 
     if is_master():
@@ -715,7 +736,9 @@ def dashboard():
     )
 
 
-    achievements_count = Achievement.query.count()
+    achievements_count = (
+        Achievement.query.count()
+    )
 
 
     return render_template(
@@ -732,7 +755,9 @@ def dashboard():
 # =========================================================
 
 @app.route("/master-dashboard")
+
 @master_required
+
 def master_dashboard():
 
     master_id = current_master_id()
@@ -813,25 +838,25 @@ def master_dashboard():
 
 
 # =========================================================
-# STUDENTS
+# STUDENT MANAGEMENT
 # =========================================================
 
 @app.route("/students")
+
 @login_required
+
 def students_page():
 
-    master_id = current_master_id()
-
-
-    if master_id:
+    if is_master():
 
         students = Student.query.filter_by(
-            master_id=master_id
+            master_id=current_master_id()
         ).order_by(
             Student.id.desc()
         ).all()
 
-        # Master must never receive the complete master list.
+        # Never expose the complete Master list to a Master.
+
         masters = []
 
     else:
@@ -860,7 +885,9 @@ def students_page():
     "/add_student",
     methods=["POST"]
 )
+
 @login_required
+
 def add_student():
 
     name = request.form.get(
@@ -868,34 +895,36 @@ def add_student():
         ""
     ).strip()
 
-    age = request.form.get(
+
+    age_value = request.form.get(
         "age",
         ""
     ).strip()
+
 
     phone = request.form.get(
         "phone",
         ""
     ).strip()
 
+
     belt = request.form.get(
         "belt",
         ""
     ).strip()
+
 
     join_date = request.form.get(
         "join_date",
         ""
     ).strip()
 
-    master_id_form = request.form.get(
-        "master_id"
-    )
 
     location = request.form.get(
         "location",
         ""
     ).strip()
+
 
     batch = request.form.get(
         "batch",
@@ -903,9 +932,14 @@ def add_student():
     ).strip()
 
 
+    master_id_form = request.form.get(
+        "master_id"
+    )
+
+
     if not all([
         name,
-        age,
+        age_value,
         phone,
         belt,
         join_date
@@ -923,7 +957,7 @@ def add_student():
 
     try:
 
-        age = int(age)
+        age = int(age_value)
 
     except ValueError:
 
@@ -937,9 +971,21 @@ def add_student():
         )
 
 
+    if age < 1 or age > 100:
+
+        flash(
+            "Please enter a valid age.",
+            "error"
+        )
+
+        return redirect(
+            url_for("students_page")
+        )
+
+
     # =====================================================
     # MASTER
-    # Master can ONLY add student to themselves.
+    # Master can ONLY add students to themselves.
     # =====================================================
 
     if is_master():
@@ -951,18 +997,31 @@ def add_student():
             master_id
         )
 
-        # Automatically use Master's location/batch
-        # when the form does not provide them.
 
         if not location:
-            location = master.location or ""
+
+            location = (
+                master.location
+                or ""
+            )
+
 
         if not batch:
-            batch = master.batch or ""
+
+            batch = (
+                master.batch
+                or ""
+            )
+
+
+    # =====================================================
+    # ADMIN
+    # =====================================================
 
     else:
 
-        # ADMIN
+        master_id = None
+
 
         if master_id_form:
 
@@ -976,10 +1035,6 @@ def add_student():
 
                 master_id = None
 
-        else:
-
-            master_id = None
-
 
         if master_id:
 
@@ -987,6 +1042,7 @@ def add_student():
                 Master,
                 master_id
             )
+
 
             if not selected_master:
 
@@ -1001,13 +1057,21 @@ def add_student():
 
 
     student = Student(
+
         name=name,
+
         age=age,
+
         phone=phone,
+
         belt=belt,
+
         join_date=join_date,
+
         master_id=master_id,
+
         location=location,
+
         batch=batch
     )
 
@@ -1031,6 +1095,233 @@ def add_student():
 
 
 # =========================================================
+# EDIT STUDENT
+# =========================================================
+
+@app.route(
+    "/edit_student/<int:student_id>",
+    methods=["POST"]
+)
+
+@login_required
+
+def edit_student(student_id):
+
+    student = db.get_or_404(
+        Student,
+        student_id
+    )
+
+
+    # =====================================================
+    # MASTER OWNERSHIP PROTECTION
+    # =====================================================
+
+    if is_master():
+
+        if student.master_id != current_master_id():
+
+            flash(
+                "You can only edit your own students.",
+                "error"
+            )
+
+            return redirect(
+                url_for("students_page")
+            )
+
+
+    name = request.form.get(
+        "name",
+        ""
+    ).strip()
+
+
+    age_value = request.form.get(
+        "age",
+        ""
+    ).strip()
+
+
+    phone = request.form.get(
+        "phone",
+        ""
+    ).strip()
+
+
+    belt = request.form.get(
+        "belt",
+        ""
+    ).strip()
+
+
+    join_date = request.form.get(
+        "join_date",
+        ""
+    ).strip()
+
+
+    location = request.form.get(
+        "location",
+        ""
+    ).strip()
+
+
+    batch = request.form.get(
+        "batch",
+        ""
+    ).strip()
+
+
+    if not all([
+        name,
+        age_value,
+        phone,
+        belt,
+        join_date
+    ]):
+
+        flash(
+            "Please fill all required student details.",
+            "error"
+        )
+
+        return redirect(
+            url_for("students_page")
+        )
+
+
+    try:
+
+        age = int(age_value)
+
+    except ValueError:
+
+        flash(
+            "Age must be a number.",
+            "error"
+        )
+
+        return redirect(
+            url_for("students_page")
+        )
+
+
+    if age < 1 or age > 100:
+
+        flash(
+            "Please enter a valid age.",
+            "error"
+        )
+
+        return redirect(
+            url_for("students_page")
+        )
+
+
+    # =====================================================
+    # UPDATE BASIC DETAILS
+    # =====================================================
+
+    student.name = name
+
+    student.age = age
+
+    student.phone = phone
+
+    student.belt = belt
+
+    student.join_date = join_date
+
+    student.location = location
+
+    student.batch = batch
+
+
+    # =====================================================
+    # MASTER
+    #
+    # A Master is never allowed to change ownership.
+    # =====================================================
+
+    if is_master():
+
+        student.master_id = current_master_id()
+
+
+    # =====================================================
+    # ADMIN
+    #
+    # Admin can assign the student to another Master.
+    # =====================================================
+
+    else:
+
+        master_id_form = request.form.get(
+            "master_id"
+        )
+
+
+        if master_id_form:
+
+            try:
+
+                new_master_id = int(
+                    master_id_form
+                )
+
+            except ValueError:
+
+                new_master_id = None
+
+
+        else:
+
+            new_master_id = None
+
+
+        if new_master_id:
+
+            selected_master = db.session.get(
+                Master,
+                new_master_id
+            )
+
+
+            if not selected_master:
+
+                flash(
+                    "Selected master does not exist.",
+                    "error"
+                )
+
+                return redirect(
+                    url_for("students_page")
+                )
+
+
+            student.master_id = new_master_id
+
+        else:
+
+            student.master_id = None
+
+
+    db.session.commit()
+
+
+    flash(
+        "Student updated successfully.",
+        "success"
+    )
+
+
+    return redirect(
+        url_for("students_page")
+    )
+
+
+# =========================================================
 # DELETE STUDENT
 # =========================================================
 
@@ -1038,7 +1329,9 @@ def add_student():
     "/delete_student/<int:student_id>",
     methods=["POST"]
 )
+
 @login_required
+
 def delete_student(student_id):
 
     student = db.get_or_404(
@@ -1047,7 +1340,9 @@ def delete_student(student_id):
     )
 
 
-    # Master can delete ONLY their own student.
+    # =====================================================
+    # MASTER OWNERSHIP PROTECTION
+    # =====================================================
 
     if is_master():
 
@@ -1063,7 +1358,9 @@ def delete_student(student_id):
             )
 
 
-    # Delete related records first.
+    # =====================================================
+    # DELETE RELATED DATA FIRST
+    # =====================================================
 
     Attendance.query.filter_by(
         student_id=student.id
@@ -1090,6 +1387,7 @@ def delete_student(student_id):
         student
     )
 
+
     db.session.commit()
 
 
@@ -1109,7 +1407,9 @@ def delete_student(student_id):
 # =========================================================
 
 @app.route("/attendance")
+
 @login_required
+
 def attendance_page():
 
     selected_date = request.args.get(
@@ -1148,7 +1448,9 @@ def attendance_page():
     "/save_attendance",
     methods=["POST"]
 )
+
 @login_required
+
 def save_attendance():
 
     attendance_date = request.form.get(
@@ -1198,8 +1500,11 @@ def save_attendance():
 
 
         existing = Attendance.query.filter_by(
+
             student_id=student.id,
+
             attendance_date=attendance_date
+
         ).first()
 
 
@@ -1210,8 +1515,11 @@ def save_attendance():
         else:
 
             record = Attendance(
+
                 student_id=student.id,
+
                 attendance_date=attendance_date,
+
                 status=status
             )
 
@@ -1242,7 +1550,9 @@ def save_attendance():
 # =========================================================
 
 @app.route("/fees")
+
 @login_required
+
 def fees_page():
 
     student_query = Student.query
@@ -1294,6 +1604,7 @@ def fees_page():
         "yourupi@bank"
     )
 
+
     upi_name = os.environ.get(
         "UPI_PAYEE_NAME",
         "Silambam Academy"
@@ -1317,7 +1628,9 @@ def fees_page():
     "/save_fee",
     methods=["POST"]
 )
+
 @login_required
+
 def save_fee():
 
     student_name = request.form.get(
@@ -1325,19 +1638,23 @@ def save_fee():
         ""
     ).strip()
 
+
     month = request.form.get(
         "month",
         ""
     ).strip()
 
+
     amount_value = request.form.get(
         "amount"
     )
+
 
     status = request.form.get(
         "status",
         "Pending"
     )
+
 
     payment_date = request.form.get(
         "date"
@@ -1360,10 +1677,6 @@ def save_fee():
             url_for("fees_page")
         )
 
-
-    # =====================================================
-    # MASTER OWNERSHIP CHECK
-    # =====================================================
 
     if is_master():
 
@@ -1412,11 +1725,27 @@ def save_fee():
         )
 
 
+    if status not in [
+        "Paid",
+        "Pending"
+    ]:
+
+        status = "Pending"
+
+
     fee = Fee(
+
         student_id=student.id,
+
         month=month,
+
         amount=amount,
-        payment_date=payment_date or date.today().strftime("%Y-%m-%d"),
+
+        payment_date=(
+            payment_date
+            or date.today().strftime("%Y-%m-%d")
+        ),
+
         status=status
     )
 
@@ -1444,7 +1773,9 @@ def save_fee():
 # =========================================================
 
 @app.route("/achievements")
+
 @login_required
+
 def achievements_page():
 
     student_query = Student.query
@@ -1506,7 +1837,9 @@ def achievements_page():
     "/save_achievement",
     methods=["POST"]
 )
+
 @login_required
+
 def save_achievement():
 
     student_name = request.form.get(
@@ -1514,24 +1847,29 @@ def save_achievement():
         ""
     ).strip()
 
+
     event = request.form.get(
         "event",
         ""
     ).strip()
+
 
     location = request.form.get(
         "location",
         ""
     ).strip()
 
+
     achievement_date = request.form.get(
         "date"
     )
+
 
     position = request.form.get(
         "position",
         ""
     ).strip()
+
 
     description = request.form.get(
         "description",
@@ -1568,10 +1906,6 @@ def save_achievement():
         )
 
 
-    # =====================================================
-    # MASTER OWNERSHIP CHECK
-    # =====================================================
-
     if is_master():
 
         if student.master_id != current_master_id():
@@ -1587,11 +1921,17 @@ def save_achievement():
 
 
     achievement = Achievement(
+
         student_id=student.id,
+
         event=event,
+
         location=location,
+
         position=position,
+
         description=description,
+
         achievement_date=achievement_date
     )
 
@@ -1615,11 +1955,13 @@ def save_achievement():
 
 
 # =========================================================
-# ADMIN ONLY - MASTERS PAGE
+# ADMIN ONLY - MASTERS
 # =========================================================
 
 @app.route("/masters")
+
 @admin_required
+
 def masters_page():
 
     masters = Master.query.order_by(
@@ -1641,7 +1983,9 @@ def masters_page():
     "/add_master",
     methods=["POST"]
 )
+
 @admin_required
+
 def add_master():
 
     name = request.form.get(
@@ -1649,30 +1993,36 @@ def add_master():
         ""
     ).strip()
 
+
     username = request.form.get(
         "username",
         ""
     ).strip()
+
 
     password = request.form.get(
         "password",
         ""
     )
 
+
     location = request.form.get(
         "location",
         ""
     ).strip()
+
 
     latitude = request.form.get(
         "latitude",
         ""
     ).strip()
 
+
     longitude = request.form.get(
         "longitude",
         ""
     ).strip()
+
 
     batch = request.form.get(
         "batch",
@@ -1717,6 +2067,7 @@ def add_master():
             else None
         )
 
+
         longitude_value = (
             float(longitude)
             if longitude
@@ -1736,14 +2087,21 @@ def add_master():
 
 
     master = Master(
+
         name=name,
+
         username=username,
+
         password_hash=generate_password_hash(
             password
         ),
+
         location=location,
+
         latitude=latitude_value,
+
         longitude=longitude_value,
+
         batch=batch
     )
 
@@ -1774,7 +2132,9 @@ def add_master():
     "/delete_master/<int:master_id>",
     methods=["POST"]
 )
+
 @admin_required
+
 def delete_master(master_id):
 
     master = db.get_or_404(
@@ -1783,10 +2143,8 @@ def delete_master(master_id):
     )
 
 
-    # -----------------------------------------------------
-    # Do not delete students.
-    # Their master_id becomes NULL.
-    # -----------------------------------------------------
+    # Keep the students.
+    # Simply remove their Master assignment.
 
     students = Student.query.filter_by(
         master_id=master.id
@@ -1801,6 +2159,7 @@ def delete_master(master_id):
     db.session.delete(
         master
     )
+
 
     db.session.commit()
 
@@ -1827,14 +2186,15 @@ def initialize_database():
         db.create_all()
 
 
-        # =================================================
-        # CREATE DEFAULT ADMIN
-        # =================================================
+        # =====================================================
+        # ADMIN ACCOUNT
+        # =====================================================
 
         admin_username = os.environ.get(
             "ADMIN_USERNAME",
             "admin"
         )
+
 
         admin_password = os.environ.get(
             "ADMIN_PASSWORD",
@@ -1850,7 +2210,9 @@ def initialize_database():
         if not admin:
 
             admin = Admin(
+
                 username=admin_username,
+
                 password_hash=generate_password_hash(
                     admin_password
                 )
@@ -1862,10 +2224,11 @@ def initialize_database():
 
             db.session.commit()
 
+
         else:
 
-            # If ADMIN_PASSWORD changes in .env,
-            # update the existing admin password.
+            # Keep the database password synchronized
+            # with ADMIN_PASSWORD in .env.
 
             if not check_password_hash(
                 admin.password_hash,
@@ -1881,14 +2244,9 @@ def initialize_database():
                 db.session.commit()
 
 
-        # =================================================
-        # ENFORCE A SINGLE ADMIN ACCOUNT
-        #
-        # If ADMIN_USERNAME in .env was changed, any older
-        # admin account(s) with a different username are
-        # removed automatically, so only the one matching
-        # .env can ever log in.
-        # =================================================
+        # =====================================================
+        # ONLY ONE ADMIN ACCOUNT
+        # =====================================================
 
         Admin.query.filter(
             Admin.username != admin_username
@@ -1896,18 +2254,19 @@ def initialize_database():
             synchronize_session=False
         )
 
+
         db.session.commit()
 
 
 # =========================================================
-# INITIALIZE DATABASE
+# STARTUP
 # =========================================================
 
 initialize_database()
 
 
 # =========================================================
-# RUN APPLICATION
+# RUN LOCAL SERVER
 # =========================================================
 
 if __name__ == "__main__":

@@ -1412,7 +1412,7 @@
 
             <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
 
-    <a href="#" class="login-nav" id="openLoginModal">
+    <a href="{{ url_for('login') }}" class="login-nav">
         🔐 Admin Login
     </a>
 
@@ -1498,14 +1498,20 @@
             <div class="buttons">
 
 
-                <!-- MODAL BUTTON -->
-
                 <a
-                    href="#"
-                    class="btn btn-primary"
-                    id="openLoginModalBtn">
+                    href="{{ url_for('login') }}"
+                    class="btn btn-primary">
 
                     🔐 Admin Login
+
+                </a>
+
+
+                <a
+                    href="{{ url_for('master_login') }}"
+                    class="btn btn-primary">
+
+                    🥋 Master Login
 
                 </a>
 
@@ -1645,275 +1651,6 @@
     </footer>
 
 
-    <!-- =========================
-         LOGIN MODAL
-    ========================= -->
-
-    <div
-        class="login-modal-overlay"
-        id="loginModal">
-
-
-        <button
-            type="button"
-            class="close-modal-btn"
-            id="closeLoginModal">
-
-            <i class="fa-solid fa-xmark"></i>
-
-        </button>
-
-
-        <div class="login-card-wrapper">
-
-
-            <div class="login-card">
-
-
-                <h2>
-                    Admin Login
-                </h2>
-
-
-                <p class="subtitle">
-
-                    Please sign in to continue
-
-                </p>
-
-
-                <!-- SHOW LOGIN ERROR -->
-
-                {% with messages = get_flashed_messages(with_categories=true) %}
-
-                    {% if messages %}
-
-                        {% for category, message in messages %}
-
-                            {% if category == 'error' %}
-
-                            <div class="login-error">
-                                {{ message }}
-                            </div>
-
-                            {% endif %}
-
-                        {% endfor %}
-
-                    {% endif %}
-
-                {% endwith %}
-
-
-                <!-- LOGIN FORM -->
-
-                <form
-                    method="POST"
-                    action="{{ url_for('login') }}">
-
-
-                    <div class="input-group">
-
-                        <i class="fa-regular fa-user"></i>
-
-
-                        <input
-                            type="text"
-                            name="username"
-                            placeholder="Username"
-                            required
-                        >
-
-                    </div>
-
-
-                    <div class="input-group">
-
-                        <i class="fa-solid fa-lock"></i>
-
-
-                        <input
-                            type="password"
-                            name="password"
-                            placeholder="Password"
-                            required
-                        >
-
-                    </div>
-
-
-                    <button
-                        type="submit"
-                        class="login-btn-card">
-
-                        Login
-
-                        <i class="fa-solid fa-arrow-right"></i>
-
-                    </button>
-
-
-                </form>
-
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <!-- =========================
-         MODAL JAVASCRIPT
-    ========================= -->
-
-   <script>
-
-    // Get login modal
-    const modal = document.getElementById("loginModal");
-
-
-    // Navbar Admin Login button
-    const openBtn1 = document.getElementById(
-        "openLoginModal"
-    );
-
-
-    // Hero Admin Login button
-    const openBtn2 = document.getElementById(
-        "openLoginModalBtn"
-    );
-
-
-    // Close button
-    const closeBtn = document.getElementById(
-        "closeLoginModal"
-    );
-
-
-    // If the server flashed a login error, the modal will contain
-    // an element with class "login-error" — reopen the modal so the
-    // person sees why their login failed, instead of landing back
-    // on a plain homepage with no explanation.
-    if (modal && modal.querySelector(".login-error")) {
-        modal.classList.add("active");
-    }
-
-
-    // ================================
-    // OPEN LOGIN MODAL
-    // ================================
-
-    function openModal(event) {
-
-        event.preventDefault();
-
-        if (modal) {
-
-            modal.classList.add("active");
-
-        }
-
-    }
-
-
-    // ================================
-    // CLOSE LOGIN MODAL
-    // ================================
-
-    function closeModal() {
-
-        if (modal) {
-
-            modal.classList.remove("active");
-
-        }
-
-    }
-
-
-    // ================================
-    // NAVBAR LOGIN BUTTON
-    // ================================
-
-    if (openBtn1) {
-
-        openBtn1.addEventListener(
-            "click",
-            openModal
-        );
-
-    }
-
-
-    // ================================
-    // HERO LOGIN BUTTON
-    // ================================
-
-    if (openBtn2) {
-
-        openBtn2.addEventListener(
-            "click",
-            openModal
-        );
-
-    }
-
-
-    // ================================
-    // CLOSE BUTTON
-    // ================================
-
-    if (closeBtn) {
-
-        closeBtn.addEventListener(
-            "click",
-            closeModal
-        );
-
-    }
-
-
-    // ================================
-    // CLOSE WHEN CLICKING OUTSIDE CARD
-    // ================================
-
-    if (modal) {
-
-        modal.addEventListener(
-            "click",
-            function(event) {
-
-                if (event.target === modal) {
-
-                    closeModal();
-
-                }
-
-            }
-        );
-
-    }
-
-
-    // ================================
-    // CLOSE WITH ESC KEY
-    // ================================
-
-    document.addEventListener(
-        "keydown",
-        function(event) {
-
-            if (event.key === "Escape") {
-
-                closeModal();
-
-            }
-
-        }
-    );
-
-</script>
 
     <!-- LIQUID GLASS JS -->
 

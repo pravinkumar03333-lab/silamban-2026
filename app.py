@@ -516,7 +516,7 @@ def login():
             )
 
         return render_template(
-            "login.html"
+            "admin_login.html"
         )
 
 
@@ -533,13 +533,9 @@ def login():
 
     if not username or not password:
 
-        flash(
-            "Please enter username and password.",
-            "error"
-        )
-
-        return redirect(
-            url_for("login")
+        return render_template(
+            "admin_login.html",
+            error="Please enter username and password."
         )
 
 
@@ -570,13 +566,9 @@ def login():
         )
 
 
-    flash(
-        "Invalid admin username or password.",
-        "error"
-    )
-
-    return redirect(
-        url_for("login")
+    return render_template(
+        "admin_login.html",
+        error="Invalid admin username or password."
     )
 
 
